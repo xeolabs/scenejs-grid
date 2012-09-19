@@ -31,6 +31,6 @@ Examples
 The engine is served right out of this repository. That means that you can fork this repo, add some modules
 and scripts, then when we pull in those changes your modules and scripts instantly become part of this engine.
 
-Try these for starters:
+Here's a few examples for starters (might take a few seconds to load):
 
  * [Example 1](http://htmlpreview.github.com/?https://raw.github.com/xeolabs/scenejs-engine/master/index.html#script=tankDemo) - loads the boot script in [content/scripts/tankDemo](https://github.com/xeolabs/scenejs-engine/blob/master/content/scripts/tankDemo.js)  
