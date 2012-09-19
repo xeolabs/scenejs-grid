@@ -30,7 +30,7 @@
         }
 
         #footer {
-            /*position: relative;*/
+        /*position: relative;*/
             width: 100%;
             height: 20px;
             color: #ffffff;
@@ -213,15 +213,20 @@ function initEngine(ok) {
                 window.engine = engine; // Make engine available to boot script
 
                 bindEngineTaskIndicator(engine);
-                
+
                 engine.send({ // Load native modules
                     action: "module.load",
                     modules: ["url/url"]
                 },
                         function() {
 
-                            engine.send({ // Query URL parameters
-                                action: "url.get"
+                            /* Get URL params - we're getting them off the hash so that we can
+                             * do this sort of thing:
+                             *
+                             * http://htmlpreview.github.com/?https://raw.github.com/xeolabs/.../index.html#script=tankDemo
+                             */
+                            engine.send({
+                                action: "url.getHashParams"
                             },
                                     function (data) {
 
