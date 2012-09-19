@@ -91,7 +91,19 @@ define(["module"], // RequireJS native module
 
                                             actionsCreated = {};
 
-                                            module.init(grid, resources, moduleConfigs); // Initialise the module
+                                            try {
+                                                module.init(grid, resources, moduleConfigs); // Initialise the module
+
+                                            } catch (e) {
+
+                                                var msg = "failed to load module - " + moduleId + ".init threw an exception: " + (e.message || e);
+
+                                                grid.fireEvent("error", {
+                                                    error: msg
+                                                });
+
+                                                continue;  // TODO: unload other modules in this list?
+                                            }
 
                                             grid.fireEvent("taskdone", {
                                                 taskId: "module.loading"
@@ -109,7 +121,7 @@ define(["module"], // RequireJS native module
                                             loadedModulesInfo[moduleId] = moduleInfo;
 
                                             loadedModules[moduleId] = module;
-                                            
+
                                             grid.fireEvent("module.loaded", moduleInfo); // Notify that the module is loaded
                                         }
 
