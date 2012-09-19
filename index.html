@@ -225,6 +225,8 @@ $.extend_if_has = function(desc, source, array) {
 
 //--------------------------------------------------------------------------
 
+var loadingDialogShown ;
+
 jQuery(document).ready(
         function($) {
 
@@ -232,12 +234,12 @@ jQuery(document).ready(
                 modalClose: false
             });
 
+            loadingDialogShown = true;
+
             initEngine(
                     function(grid) {
 
                         initTerminal(grid, $);
-
-                        $("#modal").bPopup().close();
 
                     });
 
@@ -331,6 +333,10 @@ function bindEngineTaskIndicator(grid) {
 
                 delete tasks[taskId];
 
+                if (loadingDialogShown) {
+                    $("#modal").bPopup().close();
+                    loadingDialogShown = false;
+                }
                 showTasks();
             });
 
