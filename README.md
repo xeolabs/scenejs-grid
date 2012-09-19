@@ -33,5 +33,5 @@ and scripts, then once we've pulled in those changes, your modules and scripts i
 
 Here's a few examples for starters (might take a few seconds to load):
 
- * [Tanks](http://htmlpreview.github.com/?https://raw.github.com/xeolabs/scenejs-grid/master/index.html#script=demos/teapot) - loads the boot script in [content/scripts/tankDemo](https://github.com/xeolabs/scenejs-grid/blob/master/content/scripts/demos/teapot.js)
- * [Teapot](http://htmlpreview.github.com/?https://raw.github.com/xeolabs/scenejs-grid/master/index.html#script=demos/tanks) - loads the boot script in [content/scripts/tankDemo](https://github.com/xeolabs/scenejs-grid/blob/master/content/scripts/demos/tanks.js)
+ * [Teapot](http://htmlpreview.github.com/?https://raw.github.com/xeolabs/scenejs-grid/master/index.html#script=demos/teapot) - loads the boot script in [content/scripts/demos/teapot](https://github.com/xeolabs/scenejs-grid/blob/master/content/scripts/demos/teapot.js)
+ * [Tanks](http://htmlpreview.github.com/?https://raw.github.com/xeolabs/scenejs-grid/master/index.html#script=demos/tanks) - loads the boot script in [content/scripts/demoa/tank](https://github.com/xeolabs/scenejs-grid/blob/master/content/scripts/demos/tanks.js)
