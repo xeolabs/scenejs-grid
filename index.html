@@ -48,6 +48,43 @@
         a:hover {
             color: #0080ff;
         }
+
+        #modal {
+            display: none;
+            background: #202020;
+            border: solid gray 1px;
+            width: 600px;
+            height: 200px;
+            padding: 20px;
+        }
+
+        #modal h1 {
+            font-family: Monospace;
+            font-size: 22px;
+            color: #66ff00;
+        }
+
+        #modal h2 {
+            font-family: Monospace;
+            font-size: 16px;
+            color: #66ff00;
+        }
+
+        #modal p {
+            font-family: Monospace;
+            font-size: 12px;
+            color: #66ff00;
+        }
+
+        #modal a {
+            font-family: Monospace;
+            font-size: 16px;
+            color: #66ff00;
+        }
+
+        #modal .spinner {
+            padding-top: 30px;
+        }
     </style>
 </head>
 <body>
@@ -63,6 +100,16 @@
 
 <canvas id="theCanvas"></canvas>
 
+<div id="modal">
+    <h1>scenejs grid</h1>
+
+    <h2>a modular world engine from <a href="http://xeolabs.com" target="other">xeolabs</a></h2>
+
+    <p>loading the grid, just a moment..</p>
+
+    <img class="spinner" src="images/spinner.gif" alt="">
+</div>
+
 <div id="footer">
     <!--<span>SceneJS Engine&nbsp;</span><span id="status">SceneJS Engine&nbsp;</span>-->
 </div>
@@ -71,6 +118,8 @@
 <script src="js/lib/jquery/jquery-lib.1.7.1.min.js"></script>
 <script src="js/lib/jquery/jquery.mousewheel-min.js"></script>
 <script src="js/lib/jquery/jquery.terminal-min.js"></script>
+
+<script src="js/lib/jquery/jquery.bpopup-0.7.0.min.js"></script>
 
 <script src="js/lib/scenejs/scenejs.js"></script>
 <script src="js/lib/scenejs/scenejs.box.js"></script>
@@ -179,10 +228,17 @@ $.extend_if_has = function(desc, source, array) {
 jQuery(document).ready(
         function($) {
 
+            $("#modal").bPopup({
+                modalClose: false
+            });
+
             initEngine(
                     function(grid) {
 
                         initTerminal(grid, $);
+
+                        $("#modal").bPopup().close();
+
                     });
 
         });
