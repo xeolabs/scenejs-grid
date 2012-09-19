@@ -82,6 +82,21 @@
             color: #66ff00;
         }
 
+        #modal-message {
+            font-family: Monospace;
+            font-size: 16px;
+            color: #66ff00;
+            padding-top: 40px;
+        }
+
+        #modal-message h3.wait {
+            color: #ff6600;
+        }
+
+        #modal-message h3.ready {
+            color: #66ff00;
+        }
+
         #modal .spinner {
             padding-top: 30px;
         }
@@ -105,9 +120,13 @@
 
     <h2>a modular world engine from <a href="http://xeolabs.com" target="other">xeolabs</a></h2>
 
-    <p>loading the grid, just a moment..</p>
+    <div id="modal-message">
+        <h3 class="wait">loading the grid, just a moment..</h3>
+    </div>
 
-    <img class="spinner" src="images/spinner.gif" alt="">
+    <!--<div id="modal-wait-or-go">-->
+    <!--<img class="spinner" src="images/spinner.gif" alt="">-->
+    <!--</div>-->
 </div>
 
 <div id="footer">
@@ -225,22 +244,23 @@ $.extend_if_has = function(desc, source, array) {
 
 //--------------------------------------------------------------------------
 
-var loadingDialogShown ;
-
 jQuery(document).ready(
         function($) {
 
-            $("#modal").bPopup({
-                modalClose: false
-            });
+            $("body").click(false);
 
-            loadingDialogShown = true;
+            $("#modal").bPopup({
+                //  modalClose: false
+            });
 
             initEngine(
                     function(grid) {
 
                         initTerminal(grid, $);
 
+                        $("#modal-message").html("<h3 class='ready'>ok let's roll - click to start</h3>");
+
+                        $("body").unbind('click');
                     });
 
         });
@@ -333,10 +353,6 @@ function bindEngineTaskIndicator(grid) {
 
                 delete tasks[taskId];
 
-                if (loadingDialogShown) {
-                    $("#modal").bPopup().close();
-                    loadingDialogShown = false;
-                }
                 showTasks();
             });
 
