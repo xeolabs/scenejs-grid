@@ -35,23 +35,60 @@ define(function() {
              * http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values
              */
             var qs = (function(a) {
-                if (a == "") return {};
+
+                if (a == "") {
+                    return {};
+                }
+
                 var b = {};
-                for (var i = 0; i < a.length; ++i)
-                {
-                    var p = a[i].split('=');
-                    if (p.length != 2) continue;
+                var p;
+
+                for (var i = 0; i < a.length; ++i) {
+
+                    p = a[i].split('=');
+
+                    if (p.length != 2) {
+                        continue;
+                    }
+
                     b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
                 }
+
                 return b;
+
             })(window.location.search.substr(1).split('&'));
 
             /* Create action to query the URL parameters
              */
             engine.createAction({
-                action: "url.get",
+                action: "url.getParams",
                 fn: function(params, ok) {
                     ok(qs);
+                }
+            });
+
+            /* Create action to query the URL parameters after the hash
+             * http://stackoverflow.com/questions/4197591/parsing-url-hash-fragment-identifier-with-javascript
+             */
+            engine.createAction({
+                action: "url.getHashParams",
+                fn: function(params, ok) {
+
+                    var hashParams = {};
+
+                    var e;
+                    var a = /\+/g;  // Regex for replacing addition symbol with a space
+                    var r = /([^&;=]+)=?([^&;]*)/g;
+                    var d = function (s) {
+                        return decodeURIComponent(s.replace(a, " "));
+                    };
+                    var q = window.location.hash.substring(1);
+
+                    while (e = r.exec(q)) {
+                        hashParams[d(e[1])] = d(e[2]);
+                    }
+
+                    ok(hashParams);
                 }
             });
         },
