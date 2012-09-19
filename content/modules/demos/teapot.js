@@ -60,7 +60,7 @@ define(function() {
             rotateYNode.addNode({
                 type: "material",
                 emit: 0,
-                baseColor:      { r: 0.5, g: 0.5, b: 0.6 },
+                baseColor:      { r: 0.5, g: 0.5, b: 0.9 },
                 specularColor:  { r: 0.9, g: 0.9, b: 0.9 },
                 specular:       1.0,
                 shine:          70.0,
