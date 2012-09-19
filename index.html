@@ -346,8 +346,9 @@ function initEngine(ok) {
             function() {
 
                 require([  // SceneJS plugins, which depend on SceneJS core
-                    'scenejs/scenejs.box',
-                    'scenejs/scenejs.sphere'
+                    'scenejs/scenejs.box',  // TODO: these are loaded even if not needed - should be loaded on demand
+                    'scenejs/scenejs.sphere',
+                    'scenejs/scenejs.teapot'
                 ],
                         function() {
 
