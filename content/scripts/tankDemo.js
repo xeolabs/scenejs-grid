@@ -68,7 +68,7 @@ engine.send({
                                             action:"camera.set",
                                             eye: {
                                                 x: params.canvasX * 0.1,
-                                                y: -50,
+                                                y: 50,
                                                 z: params.canvasY * 0.1
                                             }
                                         });
