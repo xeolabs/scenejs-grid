@@ -65,6 +65,9 @@ define(["module"], // RequireJS native module
                                 description: "Loading modules"
                             });
 
+                            var docLocation = document.location.href;
+                            var moduleBaseURL = docLocation.substring(0, docLocation.lastIndexOf("/"));
+
                             require(modulePaths, // Load the modules
 
                                     function() {
@@ -98,6 +101,7 @@ define(["module"], // RequireJS native module
 
                                             var moduleInfo = {
                                                 description: module.description || "no description",
+                                                src: moduleBaseURL + "/content/modules/" + modulePaths[i] + ".js",
                                                 events: [],
                                                 actions: actionsCreated
                                             };
