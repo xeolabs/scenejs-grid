@@ -1,21 +1,21 @@
 /**
- * Engine module which notifies of basic mouse events on the engine's canvas
+ * Engine module which notifies of basic mouse events on the grid's canvas
  *
  */
 define(function() {
 
-    var _engine; // Saves engine from #init method for use in mouse handlers
+    var _grid; // Saves grid from #init method for use in mouse handlers
 
     function mouseDown(event) {
-        _engine.fireEvent("mouse.down", { canvasX: event.clientX, canvasY: event.clientY });
+        _grid.fireEvent("mouse.down", { canvasX: event.clientX, canvasY: event.clientY });
     }
 
     function mouseMove(event) {
-        _engine.fireEvent("mouse.move", { canvasX: event.clientX, canvasY: event.clientY });
+        _grid.fireEvent("mouse.move", { canvasX: event.clientX, canvasY: event.clientY });
     }
 
     function mouseUp() {
-        _engine.fireEvent("mouse.up");
+        _grid.fireEvent("mouse.up");
     }
 
     return {
@@ -26,28 +26,28 @@ define(function() {
         description: "Notifies of basic mouse events on the canvas",
 
         /**
-         * Called by the engine to initialise the module.
+         * Called by the grid to initialise the module.
          *
-         * Via this method, the engine injects itself into the module, along with a map of engine
+         * Via this method, the grid injects itself into the module, along with a map of grid
          * resources that the module may use. The resources contain things like the HTML canvas
          * and certain nodes in the scene graph that the module may graft additional nodes onto.
          *
-         * Within this method, the module would typically create on the engine various actions
+         * Within this method, the module would typically create on the grid various actions
          * that it handles, as well as declare what events it fires.
          *
-       * @param {Engine} engine The engine
+       * @param {Grid} grid The grid
          * @param {Object} resources Resources shared among all modules
          * @param {JSON} configs Module configs
          */
-        init: function(engine, resources, configs) {
+        init: function(grid, resources, configs) {
 
-            _engine = engine; // Save engine in closure for use in mouse handlers defined above
+            _grid = grid; // Save grid in closure for use in mouse handlers defined above
 
-            var canvas = resources.canvas;  // Get the canvas from the engine resources
+            var canvas = resources.canvas;  // Get the canvas from the grid resources
 
-            engine.createEvent("mouse.down");
-            engine.createEvent("mouse.move");
-            engine.createEvent("mouse.up");
+            grid.createEvent("mouse.down");
+            grid.createEvent("mouse.move");
+            grid.createEvent("mouse.up");
 
             canvas.addEventListener('mousedown', mouseDown, true);
             canvas.addEventListener('mousemove', mouseMove, true);
@@ -56,15 +56,15 @@ define(function() {
 
         /**
          * Destroys this module, deleting anything that it
-         * previously created on the engine via its #init method.
+         * previously created on the grid via its #init method.
          */
-        destroy: function(engine, resources) {
+        destroy: function(grid, resources) {
 
             var canvas = resources.canvas;
 
-            engine.deleteEvent("mouse.down");
-            engine.deleteEvent("mouse.move");
-            engine.deleteEvent("mouse.up");
+            grid.deleteEvent("mouse.down");
+            grid.deleteEvent("mouse.move");
+            grid.deleteEvent("mouse.up");
 
             canvas.removeEventListener('mousedown', mouseDown, true);
             canvas.removeEventListener('mousemove', mouseMove, true);

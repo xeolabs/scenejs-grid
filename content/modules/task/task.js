@@ -8,20 +8,20 @@ define(function() {
 
         description: "Task indicator",
 
-        init: function(engine, resources, configs) {
+        init: function(grid, resources, configs) {
 
-            engine.onEvent("taskstarted",
+            grid.onEvent("taskstarted",
                     function(params) {
 
                     });
 
-            engine.onEvent("taskdone",
+            grid.onEvent("taskdone",
                     function(params) {
 
                     });
         },
 
-        destroy: function(engine, resources) {
+        destroy: function(grid, resources) {
 
 
         }

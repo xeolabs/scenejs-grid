@@ -6,16 +6,16 @@ define(function() {
 
         description: "Sky with a hazy horizon line",
 
-        init: function(engine, resources, configs) {
+        init: function(grid, resources, configs) {
 
-            engine.createAction({
+            grid.createAction({
                 action: "sky.show",
                 fn: function(params) {
                     node.setEnabled(true); // Set 'enabled' flag
                 }
             });
 
-            engine.createAction({
+            grid.createAction({
                 action: "sky.hide",
                 fn: function(params) {
                     node.setEnabled(false); // Unset 'enabled' flag
@@ -61,11 +61,11 @@ define(function() {
             });
         },
 
-        destroy: function(engine, resources) {
+        destroy: function(grid, resources) {
 
-            engine.deleteAction("sky.show");
+            grid.deleteAction("sky.show");
 
-            engine.deleteAction("sky.hide");
+            grid.deleteAction("sky.hide");
 
             node.destroy();
         }

@@ -17,7 +17,7 @@ define(["./_tankFactory"],
             /**
              * Creates a tank, recycling one from the destroyed tank pool if possible
              */
-            function createTank(engine, params) {
+            function createTank(grid, params) {
 
                 params = params || {};
 
@@ -36,7 +36,7 @@ define(["./_tankFactory"],
                         id = "tank" + i;
                         if (!activeTanks[id]) {
                             tank = activeTanks[id] = tankFactory.newTank(
-                                    engine,
+                                    grid,
                                     containerNode,
                                     id);
                             break;
@@ -113,20 +113,20 @@ define(["./_tankFactory"],
                              "for hacking purposes.",
 
                 /**
-                 * Called by the engine to initialise the module.
+                 * Called by the grid to initialise the module.
                  *
-                 * Via this method, the engine injects itself into the module, along with a map of engine
+                 * Via this method, the grid injects itself into the module, along with a map of grid
                  * resources that the module may use. The resources contain things like the HTML canvas
                  * and certain nodes in the scene graph that the module may graft additional nodes onto.
                  *
-                 * Within this method, the module would typically create on the engine various actions
+                 * Within this method, the module would typically create on the grid various actions
                  * that it handles, as well as declare what events it fires.
                  *
-                 * @param {Engine} engine The engine
+                 * @param {Grid} grid The grid
                  * @param {Object} resources Resources shared among all modules
                  * @param {JSON} configs Module configs
                  */
-                init: function(engine, resources, configs) {
+                init: function(grid, resources, configs) {
 
                     /* Create scene node that will contain our tanks
                      */
@@ -186,7 +186,7 @@ define(["./_tankFactory"],
                     });
 
                     //
-                    //                    engine.onEvent(
+                    //                    grid.onEvent(
                     //                            "reset",
                     //                            function() {
                     //                                destroyAllTanks();
@@ -195,17 +195,17 @@ define(["./_tankFactory"],
                     /**
                      * Create action to create a tank
                      */
-                    engine.createAction({
+                    grid.createAction({
                         action: "tank.create",
                         fn: function(params) {
-                            createTank(engine, params);
+                            createTank(grid, params);
                         }
                     });
 
                     /**
                      * Create action to update the state of a tank
                      */
-                    engine.createAction({
+                    grid.createAction({
                         action: "tank.set",
                         fn: function(params) {
 
@@ -242,7 +242,7 @@ define(["./_tankFactory"],
                     /**
                      * Create action to destroy a tank
                      */
-                    engine.createAction({
+                    grid.createAction({
                         action: "tank.destroy",
                         fn: function(params) {
 
@@ -258,17 +258,17 @@ define(["./_tankFactory"],
 
                 /**
                  * Destroys this module, deleting anything that it previously
-                 * created on the engine and scene graph via the #init method.
+                 * created on the grid and scene graph via the #init method.
                  */
-                destroy: function(engine, resources) {
+                destroy: function(grid, resources) {
 
                     containerNode.destroy();  // Destroy container scene node
 
-                    engine.deleteAction("tank.create");
+                    grid.deleteAction("tank.create");
 
-                    engine.deleteAction("tank.set");
+                    grid.deleteAction("tank.set");
 
-                    engine.deleteAction("tank.destroy");
+                    grid.deleteAction("tank.destroy");
                 }
             };
         });

@@ -4,9 +4,9 @@ define([
 ],
         function(map, modules) {
 
-            var engine = new (function() {
+            var grid = new (function() {
 
-                /* Holds for each type of event originating within this engine
+                /* Holds for each type of event originating within this grid
                  * a map containing a handler for each subscriber to the event.
                  *
                  * Event types are defined with #createEvent and fired with #fireEvent.
@@ -17,7 +17,7 @@ define([
                  */
                 this._handlePool = new Map();
 
-                /* Actions supported by this engine.
+                /* Actions supported by this grid.
                  * Actions are defined with #defineAction and executed with #send.
                  */
                 this._actions = {};
@@ -256,7 +256,7 @@ define([
                  */
                 this.createEvent("error");
 
-                /* Create event to notify of task starting. The engine is "busy" while
+                /* Create event to notify of task starting. The grid is "busy" while
                  * "taskstarted" events outnumber "taskdone" events. 
                  */
                 this.createEvent("taskstarted");
@@ -269,7 +269,7 @@ define([
                  */
                 this.createEvent("action.created");
 
-                /* Create event to notify of general engine reset
+                /* Create event to notify of general grid reset
                  */
                 this.createEvent("reset");
 
@@ -281,7 +281,7 @@ define([
                             actions: []
                         };
 
-                        for (var actionId in engine._actions) {
+                        for (var actionId in grid._actions) {
                             if (self._actions.hasOwnProperty(actionId)) {
                                 data.actions.push(actionId);
                             }
@@ -291,7 +291,7 @@ define([
                     }
                 });
 
-                /* Action to perform general engine reset
+                /* Action to perform general grid reset
                  */
                 this.createAction({
                     action: "reset",
@@ -316,7 +316,7 @@ define([
              */
             var resources = {};
 
-            modules.init(engine, resources);
+            modules.init(grid, resources);
 
-            return engine;
+            return grid;
         });

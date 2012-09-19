@@ -12,30 +12,30 @@ define(function() {
         description: "Provides basic actions for controlling the camera",
 
         /**
-         * Called by the engine to initialise the module.
+         * Called by the grid to initialise the module.
          *
-         * Via this method, the engine injects itself into the module, along with a map of engine
+         * Via this method, the grid injects itself into the module, along with a map of grid
          * resources that the module may use. The resources contain things like the HTML canvas
          * and certain nodes in the scene graph that the module may graft additional nodes onto.
          *
-         * Within this method, the module would typically create on the engine various actions
+         * Within this method, the module would typically create on the grid various actions
          * that it handles, as well as declare what events it fires.
          *
-        * @param {Engine} engine The engine
+        * @param {Grid} grid The grid
          * @param {Object} resources Resources shared among all modules
          * @param {JSON} configs Module configs
          */
-        init: function(engine, resources, configs) {
+        init: function(grid, resources, configs) {
 
-            var lookat = resources.sceneNodes.lookat;  // Get the scene's lookAt node from the engine resources
+            var lookat = resources.sceneNodes.lookat;  // Get the scene's lookAt node from the grid resources
 
             /* Define event to notify of camera updates
              */
-            engine.createEvent("camera.updated");
+            grid.createEvent("camera.updated");
 
             /* Create action to update the camera
              */
-            engine.createAction({
+            grid.createAction({
 
                 action: "camera.set",
 
@@ -59,7 +59,7 @@ define(function() {
             var origLook = lookat.getLook();
             var origUp = lookat.getUp();
 
-            engine.createAction({
+            grid.createAction({
                 action: "camera.reset",
                 fn: function(params, ok) {
                     lookat.setEye(origEye);
@@ -73,15 +73,15 @@ define(function() {
 
         /**
          * Destroys this module, deleting anything that it
-         * previously created on the engine via its #init method.
+         * previously created on the grid via its #init method.
          */
-        destroy: function(engine, resources) {
+        destroy: function(grid, resources) {
 
-            engine.deleteEvent("camera.updated");
+            grid.deleteEvent("camera.updated");
 
-            engine.deleteAction("camera.set");
+            grid.deleteAction("camera.set");
 
-            engine.deleteAction("camera.reset");
+            grid.deleteAction("camera.reset");
         }
     };
 });

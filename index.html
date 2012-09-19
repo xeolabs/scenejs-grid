@@ -133,10 +133,10 @@ $.extend_if_has = function(desc, source, array) {
 
         var settings = {
             prompt: 'ready> ',
-            name: 'SceneJS Engine',
+            name: 'SceneJS Grid',
             height: "90%",
             enabled: false,
-            greetings: 'SceneJS Engine Console V0.1.0.0\n' +
+            greetings: 'SceneJS Grid Console V0.1.0.0\n' +
                        '(C) 2012 Lindsay Kay\n' +
                        'lindsay.kay@xeolabs.com\n\n'
         };
@@ -180,15 +180,15 @@ jQuery(document).ready(
         function($) {
 
             initEngine(
-                    function(engine) {
+                    function(grid) {
 
-                        initTerminal(engine, $);
+                        initTerminal(grid, $);
                     });
 
         });
 
 /**
- * Bootstraps the engine
+ * Bootstraps the grid
  */
 function initEngine(ok) {
 
@@ -207,14 +207,14 @@ function initEngine(ok) {
         }
     });
 
-    require(['app/engine'], // Load the engine
-            function (engine) {
+    require(['app/grid'], // Load the grid
+            function (grid) {
 
-                window.engine = engine; // Make engine available to boot script
+                window.grid = grid; // Make grid available to boot script
 
-                bindEngineTaskIndicator(engine);
+                bindEngineTaskIndicator(grid);
 
-                engine.send({ // Load native modules
+                grid.send({ // Load native modules
                     action: "module.load",
                     modules: ["url/url"]
                 },
@@ -225,7 +225,7 @@ function initEngine(ok) {
                              *
                              * http://htmlpreview.github.com/?https://raw.github.com/xeolabs/.../index.html#script=tankDemo
                              */
-                            engine.send({
+                            grid.send({
                                 action: "url.getHashParams"
                             },
                                     function (data) {
@@ -235,25 +235,25 @@ function initEngine(ok) {
                                         if (script) { // Load boot script
                                             require(["../../content/scripts/" + script],
                                                     function() {
-                                                        ok(engine); // Booted off script
+                                                        ok(grid); // Booted off script
                                                     });
                                         } else {
-                                            ok(engine); // Done
+                                            ok(grid); // Done
                                         }
                                     });
                         });
             });
 }
 
-/* Indicates when background tasks are running inside the engine
+/* Indicates when background tasks are running inside the grid
  */
-function bindEngineTaskIndicator(engine) {
+function bindEngineTaskIndicator(grid) {
 
     var numTasks = 0;
 
     var tasks = {};
 
-    engine.onEvent("taskstarted",
+    grid.onEvent("taskstarted",
             function(params) {
 
                 var taskId = params.taskId;
@@ -266,7 +266,7 @@ function bindEngineTaskIndicator(engine) {
                 showTasks();
             });
 
-    engine.onEvent("taskdone",
+    grid.onEvent("taskdone",
             function(params) {
 
                 var taskId = params.taskId;
@@ -290,10 +290,10 @@ function bindEngineTaskIndicator(engine) {
     }
 }
 
-/* Initialises the terminal and binds engine output and errors notifications
+/* Initialises the terminal and binds grid output and errors notifications
  * so that they are display in the terminal
  */
-function initTerminal(engine, $) {
+function initTerminal(grid, $) {
 
     var dataEcho = false;
 
@@ -302,14 +302,14 @@ function initTerminal(engine, $) {
 
                 if (!dataEcho) {
 
-                    engine.onEvent("data",
+                    grid.onEvent("data",
                             function (params) { // Echo action responses
                                 if (params) {
                                     terminal.echo(JSON.stringify(params, null, 4));
                                 }
                             });
 
-                    engine.onEvent("error",
+                    grid.onEvent("error",
                             function (params) { // Echo action responses
                                 if (params) {
                                     terminal.echo(JSON.stringify(params, null, 4)).css("color", "red");

@@ -1,5 +1,5 @@
 /**
- * Engine module which provides actions for accessing the URL the engine is loaded on
+ * Engine module which provides actions for accessing the URL the grid is loaded on
  */
 define(function() {
 
@@ -13,23 +13,23 @@ define(function() {
         /**
          * Brief description of the module
          */
-        description: "Provides actions for accessing the URL the engine is loaded with",
+        description: "Provides actions for accessing the URL the grid is loaded with",
 
         /**
-         * Called by the engine to initialise the module.
+         * Called by the grid to initialise the module.
          *
-         * Via this method, the engine injects itself into the module, along with a map of engine
+         * Via this method, the grid injects itself into the module, along with a map of grid
          * resources that the module may use. The resources contain things like the HTML canvas
          * and certain nodes in the scene graph that the module may graft additional nodes onto.
          *
-         * Within this method, the module would typically create on the engine various actions
+         * Within this method, the module would typically create on the grid various actions
          * that it handles, as well as declare what events it fires.
          *
-         * @param {Engine} engine The engine
+         * @param {Grid} grid The grid
          * @param {Object} resources Resources shared among all modules
          * @param {JSON} configs Module configs
          */
-        init: function(engine, resources, configs) {
+        init: function(grid, resources, configs) {
 
             /* Get the URL parameters
              * http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values
@@ -60,7 +60,7 @@ define(function() {
 
             /* Create action to query the URL parameters
              */
-            engine.createAction({
+            grid.createAction({
                 action: "url.getParams",
                 fn: function(params, ok) {
                     ok(qs);
@@ -70,7 +70,7 @@ define(function() {
             /* Create action to query the URL parameters after the hash
              * http://stackoverflow.com/questions/4197591/parsing-url-hash-fragment-identifier-with-javascript
              */
-            engine.createAction({
+            grid.createAction({
                 action: "url.getHashParams",
                 fn: function(params, ok) {
 
@@ -95,11 +95,11 @@ define(function() {
 
         /**
          * Destroys this module, deleting anything that it
-         * previously created on the engine via its #init method.
+         * previously created on the grid via its #init method.
          */
-        destroy: function(engine, resources) {
+        destroy: function(grid, resources) {
 
-            engine.deleteAction("url.get");
+            grid.deleteAction("url.get");
         }
     };
 });

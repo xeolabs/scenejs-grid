@@ -869,7 +869,7 @@ var SceneJS = {
     /**
      * @property {SceneJS_Engine} Engines currently in existance
      */
-    _engines : {},
+    _engine : {},
 
     /**
      * Creates a new scene from the given JSON description
@@ -891,21 +891,21 @@ var SceneJS = {
                     "'id' is mandatory for the Scene node");
         }
 
-        if (this._engines[json.id]) {
+        if (this._engine[json.id]) {
             throw SceneJS_error.fatalError(
                     SceneJS.errors.ILLEGAL_NODE_CONFIG,
                     "Scene already exists with this ID: '" + json.id + "'");
         }
 
-        var engine = new SceneJS_Engine(json, options);
+        var grid = new SceneJS_Engine(json, options);
 
-        this._engines[json.id] = engine;
+        this._engine[json.id] = grid;
 
         SceneJS_events.fireEvent(SceneJS_events.SCENE_CREATED, {    // Notify modules that need to know about new scene
-            engine : engine
+            grid : grid
         });
 
-        return engine.scene;
+        return grid.scene;
     },
 
     /**
@@ -917,9 +917,9 @@ var SceneJS = {
      */
     scene : function(sceneId) {
 
-        var engine = this._engines[sceneId];
+        var grid = this._engine[sceneId];
 
-        return engine ? engine.scene : null;
+        return grid ? grid.scene : null;
     },
 
     /**
@@ -930,9 +930,9 @@ var SceneJS = {
      */
     getScene : function(sceneId) {
 
-        var engine = this._engines[sceneId];
+        var grid = this._engine[sceneId];
 
-        return engine ? engine.scene : null;
+        return grid ? grid.scene : null;
     },
 
     /**
@@ -944,9 +944,9 @@ var SceneJS = {
 
         var scenes = {};
 
-        for (var sceneId in this._engines) {
-            if (this._engines.hasOwnProperty(sceneId)) {
-                scenes[sceneId] = this._engines[sceneId].scene;
+        for (var sceneId in this._engine) {
+            if (this._engine.hasOwnProperty(sceneId)) {
+                scenes[sceneId] = this._engine[sceneId].scene;
             }
         }
 
@@ -1020,16 +1020,16 @@ var SceneJS = {
 
         var temp = [];
 
-        for (var id in this._engines) { // Collect engines to destroy
-            if (this._engines.hasOwnProperty(id)) {
+        for (var id in this._engine) { // Collect engine to destroy
+            if (this._engine.hasOwnProperty(id)) {
 
-                temp.push(this._engines[id]);
+                temp.push(this._engine[id]);
 
-                delete this._engines[id];
+                delete this._engine[id];
             }
         }
 
-        while (temp.length > 0) { // Destroy the engines
+        while (temp.length > 0) { // Destroy the engine
             temp.pop().destroy();
         }
 
@@ -1470,13 +1470,13 @@ var SceneJS_Engine = function(json, options) {
     json.type = "scene"; // The type property supplied by user on the root JSON node is ignored - would always be 'scene'
 
     /**
-     * ID of this engine, also the ID of this engine's {@link SceneJS.Scene}
+     * ID of this grid, also the ID of this grid's {@link SceneJS.Scene}
      * @type String
      */
     this.id = json.id;
 
     /**
-     * Canvas and GL context for this engine
+     * Canvas and GL context for this grid
      */
     this.canvas = new SceneJS_Canvas(json.canvasId, json.contextAttr, options);
 
@@ -1498,12 +1498,12 @@ var SceneJS_Engine = function(json, options) {
     this._coreFactory = new SceneJS_CoreFactory();
 
     /**
-     * Manages creation, recycle and destruction of {@link SceneJS.Node} instances for this engine's scene graph
+     * Manages creation, recycle and destruction of {@link SceneJS.Node} instances for this grid's scene graph
      */
     this._nodeFactory = new SceneJS_NodeFactory();
 
     /**
-     * The engine's scene renderer
+     * The grid's scene renderer
      * @type SceneJS_Display
      */
     this.display = new SceneJS_Display({
@@ -1532,25 +1532,25 @@ var SceneJS_Engine = function(json, options) {
     this._numNodesToDestroy = 0;
 
     /**
-     * Flag which is set while this engine is running - set after call to #start, unset after #stop or #pause
+     * Flag which is set while this grid is running - set after call to #start, unset after #stop or #pause
      */
     this.running = false;
 
     /**
-     * Flag which is set while this engine is paused - set after call to #pause, unset after #stop or #start
+     * Flag which is set while this grid is paused - set after call to #pause, unset after #stop or #start
      */
     this.paused = false;
 
     /**
-     * Flag set once this engine has been destroyed
+     * Flag set once this grid has been destroyed
      */
     this.destroyed = false;
 
     /**
-     * The engine's scene graph
+     * The grid's scene graph
      * @type SceneJS.Scene
      */
-    this.scene = this.createNode(json); // Scene back-references this engine, so is defined after other engine members  
+    this.scene = this.createNode(json); // Scene back-references this grid, so is defined after other grid members  
 
     var self = this;
 
@@ -1585,7 +1585,7 @@ var SceneJS_Engine = function(json, options) {
 
 /**
  * Simulate a lost WebGL context.
- * Only works if the simulateWebGLContextLost was given as an option to the engine's constructor.
+ * Only works if the simulateWebGLContextLost was given as an option to the grid's constructor.
  */
 SceneJS_Engine.prototype.loseWebGLContext = function() {
     this.canvas.loseWebGLContext();
@@ -1626,14 +1626,14 @@ SceneJS_Engine.prototype.createNode = function(json) {
 };
 
 /**
- * Finds the node with the given ID in this engine's scene graph
+ * Finds the node with the given ID in this grid's scene graph
  * @return {SceneJS.Node} The node if found, else null
  */
 SceneJS_Engine.prototype.findNode = function(nodeId) {
     return this._nodeFactory.nodes.items[nodeId];
 };
 
-/** Finds nodes in this engine's scene graph that have nodes IDs matching the given regular expression
+/** Finds nodes in this grid's scene graph that have nodes IDs matching the given regular expression
  * @param {String} nodeIdRegex Regular expression to match on node IDs
  * @return {[SceneJS.Node]} Array of nodes whose IDs match the given regex
  */
@@ -1656,7 +1656,7 @@ SceneJS_Engine.prototype.findNodes = function(nodeIdRegex) {
 };
 
 /**
- * Schedules the given subtree of this engine's {@link SceneJS.Scene} for recompilation
+ * Schedules the given subtree of this grid's {@link SceneJS.Scene} for recompilation
  *
  * @param {SceneJS.Node} node Root node of the subtree to recompile
  */
@@ -1697,7 +1697,7 @@ SceneJS_Engine.prototype.renderFrame = function(params) {
 };
 
 /**
- * Starts the render loop on this engine.
+ * Starts the render loop on this grid.
  * @params cfg Render loop configs
  * @params cfg.idleFunc {Function} Callback to call on each loop iteration
  * @params cfg.frameFunc {Function} Callback to call after a render is done to update the scene image
@@ -1778,7 +1778,7 @@ SceneJS_Engine.prototype.start = function(cfg) {
 };
 
 /**
- * Performs a pick on this engine and returns a hit record containing at least the name of the picked
+ * Performs a pick on this grid and returns a hit record containing at least the name of the picked
  * scene object (as configured by SceneJS.Name nodes) and the canvas pick coordinates. Ordinarily, picking
  * is the simple GPU color-name mapped method, but this method can instead perform a ray-intersect pick
  * when the 'rayPick' flag is set on the options parameter for this method. For that mode, this method will
@@ -1829,7 +1829,7 @@ SceneJS_Engine.prototype._tryCompile = function() {
             this._doDestroyNodes(); // Garbage collect destroyed nodes - node destructions schedule scene compilation
 
             SceneJS_events.fireEvent(SceneJS_events.SCENE_COMPILING, {  // Notify compilation support start
-                engine: this                                            // Compilation support modules get ready
+                grid: this                                            // Compilation support modules get ready
             });
 
             this.scene._compileNodes(); // Begin depth-first compilation descent into scene sub-nodes
@@ -1869,7 +1869,7 @@ SceneJS_Engine.prototype.stop = function() {
 };
 
 /**
- * Destroys a node within this engine's {@link SceneJS.Scene}
+ * Destroys a node within this grid's {@link SceneJS.Scene}
  *
  * @param {SceneJS.Node} node Node to destroy
  */
@@ -1901,7 +1901,7 @@ SceneJS_Engine.prototype._doDestroyNodes = function() {
 };
 
 /**
- * Destroys this engine
+ * Destroys this grid
  */
 SceneJS_Engine.prototype.destroy = function() {
 
@@ -1964,7 +1964,7 @@ var SceneJS_error = new (function() {
     SceneJS_events.addListener(
             SceneJS_events.SCENE_COMPILING, // Set default logging for scene root
             function(params) {
-                activeSceneId = params.engine.id;
+                activeSceneId = params.grid.id;
             });
 
     SceneJS_events.addListener(
@@ -2113,7 +2113,7 @@ SceneJS.log = new (function() {
     SceneJS_events.addListener(
             SceneJS_events.SCENE_COMPILING, // Set default logging for scene root
             function(params) {
-                activeSceneId = params.engine.id;
+                activeSceneId = params.grid.id;
             });
 
     SceneJS_events.addListener(
@@ -5033,7 +5033,7 @@ var SceneJS_sceneStatusModule = new (function() {
     SceneJS_events.addListener(
             SceneJS_events.SCENE_CREATED,
             function(params) {
-                self.sceneStatus[params.engine.id] = {
+                self.sceneStatus[params.grid.id] = {
                     numLoading: 0
                 };
             });
@@ -5041,15 +5041,15 @@ var SceneJS_sceneStatusModule = new (function() {
     SceneJS_events.addListener(
             SceneJS_events.SCENE_DESTROYED,
             function(params) {
-                delete self.sceneStatus[params.engine.id];
+                delete self.sceneStatus[params.grid.id];
             });
 
     this.nodeLoading = function(node) {
 
-        var status = self.sceneStatus[node._engine.id];
+        var status = self.sceneStatus[node._grid.id];
 
         if (!status) {
-            status = self.sceneStatus[node._engine.id] = {
+            status = self.sceneStatus[node._grid.id] = {
                 numLoading: 0
             };
 
@@ -5058,7 +5058,7 @@ var SceneJS_sceneStatusModule = new (function() {
     };
 
     this.nodeLoaded = function(node) {
-        this.sceneStatus[node._engine.id].numLoading--;
+        this.sceneStatus[node._grid.id].numLoading--;
     };
 
 })();
@@ -5352,20 +5352,20 @@ SceneJS.Node.prototype.constructor = SceneJS.Node;
 /**
  * Called by SceneJS_Engine after it has instantiated the node
  *
- * @param {SceneJS_Engine} engine The engine which will manage this node
+ * @param {SceneJS_Engine} grid The grid which will manage this node
  * @param {SceneJS_Core} core The core which will hold state for this node, may be shared with other nodes of the same type
  * @param cfg Configuration for this node
  * @param {String} cfg.id ID for the node, unique among all nodes in the scene
  * @param {String} cfg.type type Type of this node (eg. "material", "texture" etc)
  * @param {Object} cfg.data Optional arbitrary JSON object to attach to node
  */
-SceneJS.Node.prototype._construct = function(engine, core, cfg) {
+SceneJS.Node.prototype._construct = function(grid, core, cfg) {
 
     /**
      * Engine that manages this node
      * @type SceneJS_Engine
      */
-    this._engine = engine;
+    this._grid = grid;
 
     /**
      * The core which holds state for this node, may be shared with other nodes of the same type
@@ -5434,7 +5434,7 @@ SceneJS.Node.prototype._construct = function(engine, core, cfg) {
  * Returns this node's {@link SceneJS.Scene}
  */
 SceneJS.Node.prototype.getScene = function() {
-    return this._engine.scene;
+    return this._grid.scene;
 };
 
 
@@ -5546,7 +5546,7 @@ SceneJS.Node.prototype.disconnectNodeAt = function(index) {
     var r = this.nodes.splice(index, 1);
     if (r.length > 0) {
         r[0].parent = null;
-        this._engine.display.objectListDirty = true;
+        this._grid.display.objectListDirty = true;
         return r[0];
     } else {
         return null;
@@ -5575,7 +5575,7 @@ SceneJS.Node.prototype.removeNodeAt = function(index) {
     var child = this.disconnectNodeAt(index);
     if (child) {
         child.destroy();
-        this._engine.display.objectListDirty = true;
+        this._grid.display.objectListDirty = true;
     }
 };
 
@@ -5593,7 +5593,7 @@ SceneJS.Node.prototype.removeNode = function(node) {
 
     if (!node._compile) {
         if (typeof node == "string") {
-            var gotNode = this._engine.nodes.items[node];
+            var gotNode = this._grid.nodes.items[node];
             if (!gotNode) {
                 throw SceneJS_error.fatalError(
                         SceneJS.errors.NODE_NOT_FOUND,
@@ -5607,7 +5607,7 @@ SceneJS.Node.prototype.removeNode = function(node) {
         for (var i = 0; i < this.nodes.length; i++) {
             if (this.nodes[i] === node) {
                 var removedNode = this.removeNodeAt(i);
-                this._engine.display.objectListDirty = true;
+                this._grid.display.objectListDirty = true;
                 return removedNode;
             }
         }
@@ -5632,7 +5632,7 @@ SceneJS.Node.prototype.disconnectNodes = function() {
 
     this.nodes = [];
 
-    this._engine.display.objectListDirty = true;
+    this._grid.display.objectListDirty = true;
 
     return nodes;
 };
@@ -5643,7 +5643,7 @@ SceneJS.Node.prototype.removeNodes = function() {
     var nodes = this.disconnectNodes();
     for (var i = 0; i < nodes.length; i++) {
         this.nodes[i].destroy();
-        this._engine.display.objectListDirty = true;
+        this._grid.display.objectListDirty = true;
     }
 };
 
@@ -5666,7 +5666,7 @@ SceneJS.Node.prototype.splice = function() {
             parent.nodes.splice.apply(parent.nodes, [i, 1].concat(nodes));
             this.parent = null;
             this.destroy();
-            //this._engine._nodeUpdated(parent);
+            //this._grid._nodeUpdated(parent);
             return parent;
         }
     }
@@ -5691,7 +5691,7 @@ SceneJS.Node.prototype.addNodes = function(nodes) {
 
         result[i] = node;
 
-        this._engine.branchDirty(node); // Schedule compilation of new node
+        this._grid.branchDirty(node); // Schedule compilation of new node
     }
 
     return result;
@@ -5709,7 +5709,7 @@ SceneJS.Node.prototype.addNode = function(node) {
 
     if (!node._compile) {
         if (typeof node == "string") {
-            var gotNode = this._engine.nodes.items[node];
+            var gotNode = this._grid.nodes.items[node];
             if (!gotNode) {
                 throw SceneJS_error.fatalError(
                         SceneJS.errors.ILLEGAL_NODE_CONFIG,
@@ -5717,7 +5717,7 @@ SceneJS.Node.prototype.addNode = function(node) {
             }
             node = gotNode;
         } else {
-            node = this._engine.createNode(node);
+            node = this._grid.createNode(node);
         }
     }
 
@@ -5737,7 +5737,7 @@ SceneJS.Node.prototype.addNode = function(node) {
 
     node.parent = this;
 
-    this._engine.branchDirty(node);
+    this._grid.branchDirty(node);
 
     return node;
 };
@@ -5756,7 +5756,7 @@ SceneJS.Node.prototype.insertNode = function(node, i) {
     }
 
     if (!node._compile) {
-        node = this._engine.createNode(node);
+        node = this._grid.createNode(node);
     }
 
     if (!node._compile) {
@@ -6263,7 +6263,7 @@ SceneJS.Node.prototype._createAccessor = function(op, attr, value) {
         throw "Method not found on node: '" + methodName + "'";
     }
 
-    //var proto = (this.type == "node") ? SceneJS.Node.prototype : this._engine.nodeTypes[this.type].prototype;
+    //var proto = (this.type == "node") ? SceneJS.Node.prototype : this._grid.nodeTypes[this.type].prototype;
 
     var proto = this.__proto__;
 
@@ -6324,7 +6324,7 @@ SceneJS.Node.prototype.bind = function(name, handler) {
 
     this.addListener(name, handler, { scope: this });
 
-    this._engine.branchDirty(this);
+    this._grid.branchDirty(this);
 
     return this;
 };
@@ -6350,7 +6350,7 @@ SceneJS.Node.prototype.unbind = function(name, handler) {
 
     this.removeListener(name, handler);
 
-    this._engine.branchDirty(this);
+    this._grid.branchDirty(this);
 
     return this;
 };
@@ -6385,7 +6385,7 @@ SceneJS.Node.prototype._compileNodes = function() {
 
         child.branchDirty = child.branchDirty || this.branchDirty; // Compile subnodes if scene branch dirty
 
-        if (child.dirty || child.branchDirty || this._engine.sceneDirty) {  // Compile nodes that are flagged dirty
+        if (child.dirty || child.branchDirty || this._grid.sceneDirty) {  // Compile nodes that are flagged dirty
 
             child._compile();
 
@@ -6410,7 +6410,7 @@ SceneJS.Node.prototype.destroy = function() {
 
         this.destroyed = true;
 
-        this._engine.destroyNode(this); // Release node object
+        this._grid.destroyNode(this); // Release node object
     }
 
     return this;
@@ -6467,7 +6467,7 @@ SceneJS_NodeFactory.createNodeType = function(nodeTypeName, coreTypeName) {
 /**
  *
  */
-SceneJS_NodeFactory.prototype.getNode = function(engine, json, core) {
+SceneJS_NodeFactory.prototype.getNode = function(grid, json, core) {
 
     json.type = json.type || "node"; // Nodes are SceneJS.Node type by default
 
@@ -6495,7 +6495,7 @@ SceneJS_NodeFactory.prototype.getNode = function(engine, json, core) {
         json.id = this.nodes.addItem(node);
     }
 
-    node._construct(engine, core, json); // Instantiate node
+    node._construct(grid, core, json); // Instantiate node
 
     return node;
 };
@@ -6542,7 +6542,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
     SceneJS_events.addListener(
             SceneJS_events.SCENE_COMPILING,
             function(params) {
-                params.engine.display.projTransform = defaultCore;
+                params.grid.display.projTransform = defaultCore;
                 stackLen = 0;
             });
 
@@ -6612,7 +6612,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
             }
         }
         this._rebuild();
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
     };
 
     SceneJS.Camera.prototype._rebuild = function () {
@@ -6668,9 +6668,9 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
      * then restoring the previous camera state core back onto the display on exit.
      */
     SceneJS.Camera.prototype._compile = function() {
-        this._engine.display.projTransform = coreStack[stackLen++] = this._core;
+        this._grid.display.projTransform = coreStack[stackLen++] = this._core;
         this._compileNodes();
-        this._engine.display.projTransform = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
+        this._grid.display.projTransform = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
     };
 })();(function() {
 
@@ -6691,7 +6691,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
     SceneJS_events.addListener(
             SceneJS_events.SCENE_COMPILING,
             function(params) {
-                params.engine.display.clips = defaultCore;
+                params.grid.display.clips = defaultCore;
                 stackLen = 0;
             });
 
@@ -6736,7 +6736,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
                 }
             }
         }
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
     };
 
     SceneJS.Clips.prototype._setClip = function(index, cfg) {
@@ -6763,9 +6763,9 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
             this._core.hash = this._core.clips.length;
         }
 
-        this._engine.display.clips = coreStack[stackLen++] = this._core;
+        this._grid.display.clips = coreStack[stackLen++] = this._core;
         this._compileNodes();
-        this._engine.display.clips = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
+        this._grid.display.clips = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
     };
 
 
@@ -6795,7 +6795,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
     SceneJS_events.addListener(
             SceneJS_events.SCENE_COMPILING,
             function(params) {
-                params.engine.display.flags = defaultCore;
+                params.grid.display.flags = defaultCore;
                 stackLen = 0;
             });
 
@@ -6831,47 +6831,47 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
 
         if (flags.picking != undefined) {
             core.picking = !!flags.picking;
-            this._engine.display.drawListDirty = true;
+            this._grid.display.drawListDirty = true;
         }
 
         if (flags.clipping != undefined) {
             core.clipping = !!flags.clipping;
-            this._engine.display.imageDirty = true;
+            this._grid.display.imageDirty = true;
         }
 
         if (flags.enabled != undefined) {
             core.enabled = !!flags.enabled;
-            this._engine.display.drawListDirty = true;
+            this._grid.display.drawListDirty = true;
         }
 
         if (flags.transparent != undefined) {
             core.transparent = !!flags.transparent;
-            this._engine.display.drawListDirty = true;
+            this._grid.display.drawListDirty = true;
         }
 
         if (flags.backfaces != undefined) {
             core.backfaces = !!flags.backfaces;
-            this._engine.display.imageDirty = true;
+            this._grid.display.imageDirty = true;
         }
 
         if (flags.frontface != undefined) {
             core.frontface = !!flags.frontface;
-            this._engine.display.imageDirty = true;
+            this._grid.display.imageDirty = true;
         }
 
         if (flags.backfaceLighting != undefined) {
             core.backfaceLighting = !!flags.backfaceLighting;
-            this._engine.display.imageDirty = true;
+            this._grid.display.imageDirty = true;
         }
 
         if (flags.backfaceTexturing != undefined) {
             core.backfaceTexturing = !!flags.backfaceTexturing;
-            this._engine.display.imageDirty = true;
+            this._grid.display.imageDirty = true;
         }
 
         if (flags.specular != undefined) {
             core.specular = !!flags.specular;
-            this._engine.display.imageDirty = true;
+            this._grid.display.imageDirty = true;
         }
 
         return this;
@@ -6908,7 +6908,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
         picking = !!picking;
         if (this._core.picking != picking) {
             this._core.picking = picking;
-            this._engine.display.drawListDirty = true;
+            this._grid.display.drawListDirty = true;
         }
         return this;
     };
@@ -6921,7 +6921,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
         clipping = !!clipping;
         if (this._core.clipping != clipping) {
             this._core.clipping = clipping;
-            this._engine.display.imageDirty = true;
+            this._grid.display.imageDirty = true;
         }
         return this;
     };
@@ -6934,7 +6934,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
         enabled = !!enabled;
         if (this._core.enabled != enabled) {
             this._core.enabled = enabled;
-            this._engine.display.drawListDirty = true;
+            this._grid.display.drawListDirty = true;
         }
         return this;
     };
@@ -6947,7 +6947,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
         transparent = !!transparent;
         if (this._core.transparent != transparent) {
             this._core.transparent = transparent;
-            this._engine.display.drawListDirty = true;
+            this._grid.display.drawListDirty = true;
         }
         return this;
     };
@@ -6960,7 +6960,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
         backfaces = !!backfaces;
         if (this._core.backfaces != backfaces) {
             this._core.backfaces = backfaces;
-            this._engine.display.imageDirty = true;
+            this._grid.display.imageDirty = true;
         }
         return this;
     };
@@ -6972,7 +6972,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
     SceneJS.Flags.prototype.setFrontface = function(frontface) {
         if (this._core.frontface != frontface) {
             this._core.frontface = frontface;
-            this._engine.display.imageDirty = true;
+            this._grid.display.imageDirty = true;
         }
         return this;
     };
@@ -6985,7 +6985,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
         backfaceLighting = !!backfaceLighting;
         if (this._core.backfaceLighting != backfaceLighting) {
             this._core.backfaceLighting = backfaceLighting;
-            this._engine.display.imageDirty = true;
+            this._grid.display.imageDirty = true;
         }
         return this;
     };
@@ -6998,7 +6998,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
         backfaceTexturing = !!backfaceTexturing;
         if (this._core.backfaceTexturing != backfaceTexturing) {
             this._core.backfaceTexturing = backfaceTexturing;
-            this._engine.display.imageDirty = true;
+            this._grid.display.imageDirty = true;
         }
         return this;
     };
@@ -7011,7 +7011,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
         specular = !!specular;
         if (this._core.specular != specular) {
             this._core.specular = specular;
-            this._engine.display.imageDirty = true;
+            this._grid.display.imageDirty = true;
         }
         return this;
     };
@@ -7021,9 +7021,9 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
     };
 
     SceneJS.Flags.prototype._compile = function() {
-        this._engine.display.flags = coreStack[stackLen++] = this._core;
+        this._grid.display.flags = coreStack[stackLen++] = this._core;
         this._compileNodes();
-        this._engine.display.flags = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
+        this._grid.display.flags = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
     };
 
 })();new (function() {
@@ -7048,7 +7048,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
     SceneJS_events.addListener(
             SceneJS_events.SCENE_COMPILING,
             function(params) {
-                params.engine.display.frameBuf = defaultCore;
+                params.grid.display.frameBuf = defaultCore;
                 stackLen = 0;
             });
 
@@ -7092,7 +7092,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
 
     SceneJS.FrameBuf.prototype._buildNodeCore = function() {
 
-        var canvas = this._engine.canvas;
+        var canvas = this._grid.canvas;
         var gl = canvas.gl;
         var width = canvas.canvas.width;
         var height = canvas.canvas.height;
@@ -7209,9 +7209,9 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
     };
 
     SceneJS.FrameBuf.prototype._compile = function() {
-        this._engine.display.frameBuf = coreStack[stackLen++] = this._core;
+        this._grid.display.frameBuf = coreStack[stackLen++] = this._core;
         this._compileNodes();
-        this._engine.display.frameBuf = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
+        this._grid.display.frameBuf = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
     };
 
     SceneJS.FrameBuf.prototype._destroy = function() {
@@ -7301,14 +7301,14 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
 
                             self._initNodeCore(data);
 
-                            SceneJS.Geometry._buildNodeCore(self._engine.canvas.gl, self._core);
+                            SceneJS.Geometry._buildNodeCore(self._grid.canvas.gl, self._core);
 
                             self._core._loading = false;
                             self._fireEvent("loaded");
 
-                            self._engine.display.imageDirty = true;
+                            self._grid.display.imageDirty = true;
 
-                            self._engine.branchDirty(self); // TODO
+                            self._grid.branchDirty(self); // TODO
                         });
 
                 if (this._asset.onUpdate) {
@@ -7419,7 +7419,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
                                 }
 
 
-                                self._engine.display.imageDirty = true;
+                                self._grid.display.imageDirty = true;
                             });
                 }
 
@@ -7439,7 +7439,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
 
                 this._initNodeCore(json, options);
 
-                SceneJS.Geometry._buildNodeCore(this._engine.canvas.gl, this._core);
+                SceneJS.Geometry._buildNodeCore(this._grid.canvas.gl, this._core);
 
             } else {
 
@@ -7449,11 +7449,11 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
 
                 this._initNodeCore(params, options);
 
-                SceneJS.Geometry._buildNodeCore(this._engine.canvas.gl, this._core);
+                SceneJS.Geometry._buildNodeCore(this._grid.canvas.gl, this._core);
             }
 
             this._core.webglRestored = function() {
-                SceneJS.Geometry._buildNodeCore(self._engine.canvas.gl, self._core);
+                SceneJS.Geometry._buildNodeCore(self._grid.canvas.gl, self._core);
             };
 
         }
@@ -7488,7 +7488,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
      */
     SceneJS.Geometry.prototype._getPrimitiveType = function(primitive) {
 
-        var gl = this._engine.canvas.gl;
+        var gl = this._grid.canvas.gl;
 
         switch (primitive) {
 
@@ -7668,7 +7668,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
             core.vertexBuf.bind();
             core.vertexBuf.setData(new Float32Array(data.positions), data.positionsOffset || 0);
             core.arrays.positions.set(data.positions, data.positionsOffset || 0);
-            this._engine.display.imageDirty = true;
+            this._grid.display.imageDirty = true;
         }
     };
 
@@ -7682,7 +7682,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
             core.normalBuf.bind();
             core.normalBuf.setData(new Float32Array(data.normals), data.normalsOffset || 0);
             core.arrays.normals.set(data.normals, data.normalsOffset || 0);
-            this._engine.display.imageDirty = true;
+            this._grid.display.imageDirty = true;
         }
     };
 
@@ -7696,7 +7696,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
             core.colorBuf.bind();
             core.colorBuf.setData(new Float32Array(data.colors), data.colorsOffset || 0);
             core.arrays.colors.set(data.colors, data.colorsOffset || 0);
-            this._engine.display.imageDirty = true;
+            this._grid.display.imageDirty = true;
         }
     };
 
@@ -7714,7 +7714,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
             core.colorBuf.bind();
             core.colorBuf.setData(new Float32Array(data.uv), data.uvOffset || 0);
             core.arrays.uv.set(data.uv, data.uvOffset || 0);
-            this._engine.display.imageDirty = true;
+            this._grid.display.imageDirty = true;
         }
     };
 
@@ -7728,7 +7728,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
             core.colorBuf.bind();
             core.colorBuf.setData(new Float32Array(data.uv2), data.uv2Offset || 0);
             core.arrays.uv2.set(data.uv2, data.uv2Offset || 0);
-            this._engine.display.imageDirty = true;
+            this._grid.display.imageDirty = true;
         }
     };
 
@@ -7832,13 +7832,13 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
             core.stateId = this._core.stateId;
             core.type = "geometry";
 
-            this._engine.display.geometry = coreStack[stackLen++] = core;
+            this._grid.display.geometry = coreStack[stackLen++] = core;
 
             SceneJS_events.fireEvent(SceneJS_events.OBJECT_COMPILING, { // Pull in state updates from scenes nodes
-                display: this._engine.display
+                display: this._grid.display
             });
 
-            this._engine.display.buildObject(this.id); // Use node ID since we may inherit from many cores
+            this._grid.display.buildObject(this.id); // Use node ID since we may inherit from many cores
 
         } else {
             coreStack[stackLen++] = this._core;
@@ -7878,7 +7878,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
 
     SceneJS.Geometry.prototype._destroy = function() {
 
-        this._engine._display.removeObject(this.id);
+        this._grid._display.removeObject(this.id);
 
         /* Destroy core if no other references
          */
@@ -7894,7 +7894,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
 
     SceneJS.Geometry.prototype._destroyNodeCore = function() {
 
-        if (document.getElementById(this._engine.canvas.canvasId)) { // Context won't exist if canvas has disappeared
+        if (document.getElementById(this._grid.canvas.canvasId)) { // Context won't exist if canvas has disappeared
 
             var core = this._core;
 
@@ -7937,7 +7937,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
     SceneJS_events.addListener(
             SceneJS_events.SCENE_COMPILING,
             function(params) {
-                params.engine.display.layer = defaultCore;
+                params.grid.display.layer = defaultCore;
                 stackLen = 0;
             });
 
@@ -7958,7 +7958,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
         priority = priority || 0;
         if (this._core.priority != priority) {
             this._core.priority = priority;
-            this._engine.display.stateOrderDirty = true;
+            this._grid.display.stateOrderDirty = true;
         }
     };
 
@@ -7970,7 +7970,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
         enabled = !!enabled;
         if (this._core.enabled != enabled) {
             this._core.enabled = enabled;
-            this._engine.display.drawListDirty = true;
+            this._grid.display.drawListDirty = true;
         }
     };
 
@@ -7979,9 +7979,9 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
     };
 
     SceneJS.Layer.prototype._compile = function() {
-        this._engine.display.layer = coreStack[stackLen++] = this._core;
+        this._grid.display.layer = coreStack[stackLen++] = this._core;
         this._compileNodes();
-        this._engine.display.layer = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
+        this._grid.display.layer = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
     };
 
 })();
@@ -8013,7 +8013,7 @@ SceneJS.Library.prototype._compile = function() { // Bypass child nodes
     SceneJS_events.addListener(
             SceneJS_events.SCENE_COMPILING,
             function(params) {
-                params.engine.display.lights = defaultCore;
+                params.grid.display.lights = defaultCore;
                 stackLen = 0;
             });
 
@@ -8058,7 +8058,7 @@ SceneJS.Library.prototype._compile = function() { // Bypass child nodes
                 }
             }
         }
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
     };
 
     SceneJS.Lights.prototype._setLight = function(index, cfg) {
@@ -8115,9 +8115,9 @@ SceneJS.Library.prototype._compile = function() { // Bypass child nodes
             this._makeHash();
         }
 
-        this._engine.display.lights = coreStack[stackLen++] = this._core;
+        this._grid.display.lights = coreStack[stackLen++] = this._core;
         this._compileNodes();
-        this._engine.display.lights = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
+        this._grid.display.lights = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
     };
 
     SceneJS.Lights.prototype._makeHash = function() {
@@ -8182,7 +8182,7 @@ SceneJS.Library.prototype._compile = function() { // Bypass child nodes
     SceneJS_events.addListener(
             SceneJS_events.SCENE_COMPILING,
             function(params) {
-                params.engine.display.viewTransform = defaultCore;
+                params.grid.display.viewTransform = defaultCore;
                 stackLen = 0;
             });
 
@@ -8250,7 +8250,7 @@ SceneJS.Library.prototype._compile = function() { // Bypass child nodes
         this._core.eyeY = (eye.y != undefined && eye.y != null) ? eye.y : 0;
         this._core.eyeZ = (eye.z != undefined && eye.z != null) ? eye.z : 0;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
@@ -8260,49 +8260,49 @@ SceneJS.Library.prototype._compile = function() { // Bypass child nodes
         this._core.eyeY += (eye.y != undefined && eye.y != null) ? eye.y : 0;
         this._core.eyeZ += (eye.z != undefined && eye.z != null) ? eye.z : 0;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
     SceneJS.Lookat.prototype.setEyeX = function(x) {
         this._core.eyeX = x || 0;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
     SceneJS.Lookat.prototype.setEyeY = function(y) {
         this._core.eyeY = y || 0;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
     SceneJS.Lookat.prototype.setEyeZ = function(z) {
         this._core.eyeZ = z || 0;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
     SceneJS.Lookat.prototype.incEyeX = function(x) {
         this._core.eyeX += x;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
     SceneJS.Lookat.prototype.incEyeY = function(y) {
         this._core.eyeY += y;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
     SceneJS.Lookat.prototype.incEyeZ = function(z) {
         this._core.eyeZ += z;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
@@ -8320,7 +8320,7 @@ SceneJS.Library.prototype._compile = function() { // Bypass child nodes
         this._core.lookY = (look.y != undefined && look.y != null) ? look.y : 0;
         this._core.lookZ = (look.z != undefined && look.z != null) ? look.z : 0;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
@@ -8330,49 +8330,49 @@ SceneJS.Library.prototype._compile = function() { // Bypass child nodes
         this._core.lookY += (look.y != undefined && look.y != null) ? look.y : 0;
         this._core.lookZ += (look.z != undefined && look.z != null) ? look.z : 0;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
     SceneJS.Lookat.prototype.setLookX = function(x) {
         this._core.lookX = x || 0;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
     SceneJS.Lookat.prototype.setLookY = function(y) {
         this._core.lookY = y || 0;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
     SceneJS.Lookat.prototype.setLookZ = function(z) {
         this._core.lookZ = z || 0;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
     SceneJS.Lookat.prototype.incLookX = function(x) {
         this._core.lookX += x;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
     SceneJS.Lookat.prototype.incLookY = function(y) {
         this._core.lookY += y;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
     SceneJS.Lookat.prototype.incLookZ = function(z) {
         this._core.lookZ += z;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
@@ -8390,7 +8390,7 @@ SceneJS.Library.prototype._compile = function() { // Bypass child nodes
         this._core.upY = (up.y != undefined && up.y != null) ? up.y : 0;
         this._core.upZ = (up.z != undefined && up.z != null) ? up.z : 0;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
@@ -8400,49 +8400,49 @@ SceneJS.Library.prototype._compile = function() { // Bypass child nodes
         this._core.upY += (up.y != undefined && up.y != null) ? up.y : 0;
         this._core.upZ += (up.z != undefined && up.z != null) ? up.z : 0;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
     SceneJS.Lookat.prototype.setUpX = function(x) {
         this._core.upX = x || 0;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
     SceneJS.Lookat.prototype.setUpY = function(y) {
         this._core.upY = y || 0;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
     SceneJS.Lookat.prototype.setUpZ = function(z) {
         this._core.upZ = z || 0;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
     SceneJS.Lookat.prototype.incUpX = function(x) {
         this._core.upX += x;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
     SceneJS.Lookat.prototype.incUpY = function(y) {
         this._core.upY += y;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
     SceneJS.Lookat.prototype.incUpZ = function(z) {
         this._core.upZ += z;
         this._core.dirty = true;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
@@ -8488,9 +8488,9 @@ SceneJS.Library.prototype._compile = function() { // Bypass child nodes
     };
 
     SceneJS.Lookat.prototype._compile = function() {
-        this._engine.display.viewTransform = coreStack[stackLen++] = this._core;
+        this._grid.display.viewTransform = coreStack[stackLen++] = this._core;
         this._compileNodes();
-        this._engine.display.viewTransform = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
+        this._grid.display.viewTransform = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
     };
 
 })();/*
@@ -8529,7 +8529,7 @@ new (function() {
     SceneJS_events.addListener(
             SceneJS_events.SCENE_COMPILING,
             function(params) {
-                params.engine.display.material = defaultCore;
+                params.grid.display.material = defaultCore;
                 stackLen = 0;
             });
 
@@ -8557,7 +8557,7 @@ new (function() {
             color.g != undefined && color.g != null ? color.g : defaultBaseColor[1],
             color.b != undefined && color.b != null ? color.b : defaultBaseColor[2]
         ] : defaultCore.baseColor;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
@@ -8576,7 +8576,7 @@ new (function() {
             color.g != undefined && color.g != null ? color.g : defaultSpecularColor[1],
             color.b != undefined && color.b != null ? color.b : defaultSpecularColor[2]
         ] : defaultCore.specularColor;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
@@ -8590,7 +8590,7 @@ new (function() {
 
     SceneJS.Material.prototype.setSpecular = function(specular) {
         this._core.specular = (specular != undefined && specular != null) ? specular : defaultCore.specular;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
@@ -8600,7 +8600,7 @@ new (function() {
 
     SceneJS.Material.prototype.setShine = function(shine) {
         this._core.shine = (shine != undefined && shine != null) ? shine : defaultCore.shine;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
@@ -8610,7 +8610,7 @@ new (function() {
 
     SceneJS.Material.prototype.setEmit = function(emit) {
         this._core.emit = (emit != undefined && emit != null) ? emit : defaultCore.emit;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
@@ -8620,7 +8620,7 @@ new (function() {
 
     SceneJS.Material.prototype.setAlpha = function(alpha) {
         this._core.alpha = (alpha != undefined && alpha != null) ? alpha : defaultCore.alpha;
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
         return this;
     };
 
@@ -8629,9 +8629,9 @@ new (function() {
     };
 
     SceneJS.Material.prototype._compile = function() {
-        this._engine.display.material = coreStack[stackLen++] = this._core;
+        this._grid.display.material = coreStack[stackLen++] = this._core;
         this._compileNodes();
-        this._engine.display.material = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
+        this._grid.display.material = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
     };
 
 })();new (function() {
@@ -8653,7 +8653,7 @@ new (function() {
     SceneJS_events.addListener(
             SceneJS_events.SCENE_COMPILING,
             function(params) {
-                params.engine.display.morphGeometry = defaultCore;
+                params.grid.display.morphGeometry = defaultCore;
                 stackLen = 0;
             });
 
@@ -8715,7 +8715,7 @@ new (function() {
                             self._core._loading = false;
                             self._fireEvent("loaded");
 
-                            self._engine.branchDirty(this); // TODO
+                            self._grid.branchDirty(this); // TODO
                         });
 
                 if (this._asset.onUpdate) {
@@ -8773,7 +8773,7 @@ new (function() {
             }
 
             this._core.webglRestored = function() {
-                //self._buildNodeCore(self._engine.canvas.gl, self._core);
+                //self._buildNodeCore(self._grid.canvas.gl, self._core);
             };
 
             this.setFactor(params.factor);
@@ -8801,7 +8801,7 @@ new (function() {
         }
 
         var core = this._core;
-        var gl = this._engine.canvas.gl;
+        var gl = this._grid.canvas.gl;
         var usage = gl.STATIC_DRAW; //var usage = (!arrays.fixed) ? gl.STREAM_DRAW : gl.STATIC_DRAW;
 
         core.keys = keysData;
@@ -8954,7 +8954,7 @@ new (function() {
         core.key1 = key1;
         core.key2 = key2;
 
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
     };
 
     SceneJS.MorphGeometry.prototype.getFactor = function() {
@@ -8967,9 +8967,9 @@ new (function() {
             this._makeHash();
         }
 
-        this._engine.display.morphGeometry = coreStack[stackLen++] = this._core;
+        this._grid.display.morphGeometry = coreStack[stackLen++] = this._core;
         this._compileNodes();
-        this._engine.display.morphGeometry = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
+        this._grid.display.morphGeometry = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
     };
 
     SceneJS.MorphGeometry.prototype._makeHash = function() {
@@ -8991,7 +8991,7 @@ new (function() {
 
     SceneJS.MorphGeometry.prototype._destroy = function() {
         if (this._core.useCount == 1) { // Destroy core if no other references
-            if (document.getElementById(this._engine.canvas.canvasId)) { // Context won't exist if canvas has disappeared
+            if (document.getElementById(this._grid.canvas.canvasId)) { // Context won't exist if canvas has disappeared
                 var core = this._core;
                 var target;
                 for (var i = 0, len = core.targets.length; i < len; i++) {
@@ -9033,7 +9033,7 @@ new (function() {
     SceneJS_events.addListener(
             SceneJS_events.SCENE_COMPILING,
             function(params) {
-                params.engine.display.name = defaultCore;
+                params.grid.display.name = defaultCore;
                 stackLen = 0;
             });
 
@@ -9051,7 +9051,7 @@ new (function() {
 
     SceneJS.Name.prototype.setName = function(name) {
         this._core.name = name || "unnamed";
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
     };
 
     SceneJS.Name.prototype.getName = function() {
@@ -9059,9 +9059,9 @@ new (function() {
     };
 
     SceneJS.Name.prototype._compile = function() {
-        this._engine.display.name = coreStack[stackLen++] = this._core;
+        this._grid.display.name = coreStack[stackLen++] = this._core;
         this._compileNodes();
-        this._engine.display.name = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
+        this._grid.display.name = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
     };
 })();new (function() {
 
@@ -9082,7 +9082,7 @@ new (function() {
             SceneJS_events.SCENE_COMPILING,
             function(params) {
 
-                canvas = params.engine.canvas;
+                canvas = params.grid.canvas;
 
 //                // TODO: Below is a HACK
 //
@@ -9119,7 +9119,7 @@ new (function() {
 
                 stackLen = 0;
 
-                params.engine.display.renderer = coreStack[stackLen++] = defaultCore;
+                params.grid.display.renderer = coreStack[stackLen++] = defaultCore;
             });
 
     function createProps(props) {
@@ -9838,9 +9838,9 @@ new (function() {
 //            this._core.dirty = false;
 //        }
 //
-//        this._engine.display.renderer = coreStack[stackLen++] = this._core;
+//        this._grid.display.renderer = coreStack[stackLen++] = this._core;
         this._compileNodes();
-        //this._engine.display.renderer = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
+        //this._grid.display.renderer = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
     };
 })();/**
  * @class The root node of a scenegraph
@@ -9867,7 +9867,7 @@ SceneJS.Scene.prototype._init = function(params) {
  * @return {String} handle Handle to the subcription
  */
 SceneJS.Scene.prototype.onEvent = function(type, callback) {
-    return this._engine.events.onEvent(type, callback);
+    return this._grid.events.onEvent(type, callback);
 };
 
 /**
@@ -9876,7 +9876,7 @@ SceneJS.Scene.prototype.onEvent = function(type, callback) {
  * @param {String} handle Subscription handle
  */
 SceneJS.Scene.prototype.unEvent = function(handle) {
-    this._engine.events.unEvent(handle);
+    this._grid.events.unEvent(handle);
 };
 
 /**
@@ -9885,7 +9885,7 @@ SceneJS.Scene.prototype.unEvent = function(handle) {
  * @private
  */
 SceneJS.Scene.prototype.loseWebGLContext = function() {
-    this._engine.loseWebGLContext();
+    this._grid.loseWebGLContext();
 };
 
 
@@ -9894,21 +9894,21 @@ SceneJS.Scene.prototype.loseWebGLContext = function() {
  * @return {HTMLCanvas} The canvas
  */
 SceneJS.Scene.prototype.getCanvas = function() {
-    return this._engine.canvas.canvas;
+    return this._grid.canvas.canvas;
 };
 
 /**
  * Returns the WebGL context for this scene
  */
 SceneJS.Scene.prototype.getGL = function() {
-    return this._engine.canvas.gl;
+    return this._grid.canvas.gl;
 };
 
 /** Returns the Z-buffer depth in bits of the webgl context that this scene is to bound to.
  */
 SceneJS.Scene.prototype.getZBufferDepth = function() {
 
-    var gl = this._engine.canvas.gl;
+    var gl = this._grid.canvas.gl;
 
     return gl.getParameter(gl.DEPTH_BITS);
 };
@@ -9928,7 +9928,7 @@ SceneJS.Scene.prototype.setTagMask = function(tagMask) {
     this._tagSelector.mask = tagMask;
     this._tagSelector.regex = tagMask ? new RegExp(tagMask) : null;
 
-    this._engine.display.selectTags(this._tagSelector);
+    this._grid.display.selectTags(this._tagSelector);
 };
 
 /**
@@ -9946,14 +9946,14 @@ SceneJS.Scene.prototype.getTagMask = function() {
  * Returns true if frame rendered
  */
 SceneJS.Scene.prototype.renderFrame = function(params) {
-    return this._engine.renderFrame(params);
+    return this._grid.renderFrame(params);
 };
 
 /**
  * Starts the render loop for this scene
  */
 SceneJS.Scene.prototype.start = function(params) {
-    this._engine.start(params);
+    this._grid.start(params);
 };
 
 /**
@@ -9961,7 +9961,7 @@ SceneJS.Scene.prototype.start = function(params) {
  * @param {Boolean} doPause Indicates whether to pause or unpause the render loop
  */
 SceneJS.Scene.prototype.pause = function(doPause) {
-    this._engine.pause(doPause);
+    this._grid.pause(doPause);
 };
 
 /**
@@ -9969,14 +9969,14 @@ SceneJS.Scene.prototype.pause = function(doPause) {
  * @returns {Boolean} True when scene render loop is running
  */
 SceneJS.Scene.prototype.isRunning = function() {
-    return this._engine.running;
+    return this._grid.running;
 };
 
 /**
  * Picks whatever geometry will be rendered at the given canvas coordinates.
  */
 SceneJS.Scene.prototype.pick = function(canvasX, canvasY, options) {
-    return this._engine.pick(canvasX, canvasY, options);
+    return this._grid.pick(canvasX, canvasY, options);
 };
 
 /**                                  p
@@ -9984,7 +9984,7 @@ SceneJS.Scene.prototype.pick = function(canvasX, canvasY, options) {
  * @private
  */
 SceneJS.Scene.prototype.destroy = function() {
-    this._engine.destroy();
+    this._grid.destroy();
 };
 
 /**
@@ -9992,20 +9992,20 @@ SceneJS.Scene.prototype.destroy = function() {
  * when you render it.
  */
 SceneJS.Scene.prototype.isActive = function() {
-    return !this._engine.destroyed;
+    return !this._grid.destroyed;
 };
 
 /**
  * Stops current render loop that was started with {@link #start}. After this, {@link #isRunning} will return false.
  */
 SceneJS.Scene.prototype.stop = function() {
-    this._engine.stop();
+    this._grid.stop();
 };
 
 /** Determines if node exists in this scene
  */
 SceneJS.Scene.prototype.containsNode = function(nodeId) {
-    return !!this._engine.findNode(nodeId);
+    return !!this._grid.findNode(nodeId);
 };
 
 /**
@@ -10015,7 +10015,7 @@ SceneJS.Scene.prototype.containsNode = function(nodeId) {
  * @return {[SceneJS.Node]} Array of nodes whose IDs match the given regex
  */
 SceneJS.Scene.prototype.findNodes = function(nodeIdRegex) {
-    return this._engine.findNodes(nodeIdRegex);
+    return this._grid.findNodes(nodeIdRegex);
 };
 
 /**
@@ -10024,7 +10024,7 @@ SceneJS.Scene.prototype.findNodes = function(nodeIdRegex) {
  * @return {SceneJS.Node} The node if found, else null
  */
 SceneJS.Scene.prototype.findNode = function(nodeId) {
-    return this._engine.findNode(nodeId);
+    return this._grid.findNode(nodeId);
 };
 
 /**
@@ -10032,7 +10032,7 @@ SceneJS.Scene.prototype.findNode = function(nodeId) {
  * @return {SceneJS.Node} The node if found, else null
  */
 SceneJS.Scene.prototype.getNode  = function(nodeId) {
-    return this._engine.findNode(nodeId);
+    return this._grid.findNode(nodeId);
 };
 
 /**
@@ -10052,7 +10052,7 @@ SceneJS.Scene.prototype.getNode  = function(nodeId) {
  *
  */
 SceneJS.Scene.prototype.getStatus = function() {
-    return (this._engine.destroyed)
+    return (this._grid.destroyed)
             ? { destroyed: true }
             : SceneJS._shallowClone(SceneJS_sceneStatusModule.sceneStatus[this.id]);
 };
@@ -10084,7 +10084,7 @@ new (function() {
             SceneJS_events.SCENE_COMPILING,
             function(params) {
 
-                params.engine.display.shader = defaultCore;
+                params.grid.display.shader = defaultCore;
 
                 stackLen = 0;
 
@@ -10206,7 +10206,7 @@ new (function() {
                 coreParams[name] = params[name];
             }
         }
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
     };
 
     SceneJS.Shader.prototype.getParams = function() {
@@ -10269,7 +10269,7 @@ new (function() {
             SceneJS_events.SCENE_COMPILING,
             function(params) {
 
-                params.engine.display.shaderParams = defaultCore;
+                params.grid.display.shaderParams = defaultCore;
 
                 stackLen = 0;
                 dirty = true;
@@ -10315,7 +10315,7 @@ new (function() {
                 core.params[name] = params[name];
             }
         }
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
     };
 
     SceneJS.ShaderParams.prototype.getParams = function() {
@@ -10362,7 +10362,7 @@ new (function() {
     SceneJS_events.addListener(
             SceneJS_events.SCENE_COMPILING,
             function(params) {
-                params.engine.display.tag = defaultCore;
+                params.grid.display.tag = defaultCore;
                 stackLen = 0;
             });
 
@@ -10392,7 +10392,7 @@ new (function() {
         core.pattern = null;    // To be recomputed
         core.matched = false;   // To be rematched
 
-        this._engine.display.drawListDirty = true;
+        this._grid.display.drawListDirty = true;
     };
 
     SceneJS.Tag.prototype.getTag = function() {
@@ -10400,9 +10400,9 @@ new (function() {
     };
 
     SceneJS.Tag.prototype._compile = function() {
-        this._engine.display.tag = coreStack[stackLen++] = this._core;
+        this._grid.display.tag = coreStack[stackLen++] = this._core;
         this._compileNodes();
-        this._engine.display.tag = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
+        this._grid.display.tag = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
     };
 })();/**
  * @class Scene graph node which defines textures to apply to the objects in its subgraph
@@ -10426,7 +10426,7 @@ new (function() {
     SceneJS_events.addListener(
             SceneJS_events.SCENE_COMPILING,
             function(params) {
-                params.engine.display.texture = defaultCore;
+                params.grid.display.texture = defaultCore;
                 stackLen = 0;
             });
 
@@ -10462,7 +10462,7 @@ new (function() {
             }
 
             var layerParams;
-            var gl = this._engine.canvas.gl;
+            var gl = this._grid.canvas.gl;
 
             for (var i = 0; i < params.layers.length; i++) {
 
@@ -10530,7 +10530,7 @@ new (function() {
 
                 if (layer.frameBuf) { // Create from preceding frameBuf node
 
-                    var targetNode = this._engine.findNode(layer.frameBuf);
+                    var targetNode = this._grid.findNode(layer.frameBuf);
 
                     if (targetNode && targetNode.type == "frameBuf") {
                         layer.texture = targetNode._core.frameBuf.getTexture();
@@ -10546,7 +10546,7 @@ new (function() {
             this._core.webglRestored = function() {
 
                 var layers = self._core.layers;
-                var gl = self._engine.canvas.gl;
+                var gl = self._grid.canvas.gl;
 
                 for (var i = 0, len = layers.length; i < len; i++) {
                     self._loadLayerTexture(gl, layers[i]);
@@ -10599,7 +10599,7 @@ new (function() {
                                 self._setLayerTexture(gl, layer, asset.getTexture());
 
                             } else { // Texture updated - layer already has the handle to it, so just signal a redraw
-                                self._engine.display.imageDirty = true;
+                                self._grid.display.imageDirty = true;
                             }
                         };
                     })());
@@ -10687,7 +10687,7 @@ new (function() {
             layer.texture.destroy();
         }
 
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
     };
 
     SceneJS.Texture.prototype._getGLOption = function(name, gl, layer, defaultVal) {
@@ -10732,7 +10732,7 @@ new (function() {
 
         this._setLayer(parseInt(cfg.index), cfg);
 
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
     };
 
     /**
@@ -10753,7 +10753,7 @@ new (function() {
                 }
             }
         }
-        this._engine.display.imageDirty = true;
+        this._grid.display.imageDirty = true;
     };
 
     SceneJS.Texture.prototype._setLayer = function(index, cfg) {
@@ -10833,9 +10833,9 @@ new (function() {
             this._makeHash();
         }
 
-        this._engine.display.texture = coreStack[stackLen++] = this._core;
+        this._grid.display.texture = coreStack[stackLen++] = this._core;
         this._compileNodes();
-        this._engine.display.texture = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
+        this._grid.display.texture = (--stackLen > 0) ? coreStack[stackLen - 1] : defaultCore;
     };
 
     SceneJS.Texture.prototype._makeHash = function() {
@@ -10954,7 +10954,7 @@ SceneJS.Matrix.prototype.setElements = function(elements) {
 
     core.setDirty();
 
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
 
     return this;
 };
@@ -11014,13 +11014,13 @@ SceneJS.Rotate.prototype.setMultOrder = function(multOrder) {
     this._core.multOrder = multOrder;
 
     this._core.setDirty();
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
 };
 
 SceneJS.Rotate.prototype.setAngle = function(angle) {
     this._core.angle = angle || 0;
     this._core.setDirty();
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
 };
 
 SceneJS.Rotate.prototype.getAngle = function() {
@@ -11037,7 +11037,7 @@ SceneJS.Rotate.prototype.setXYZ = function(xyz) {
 
     this._core.setDirty();
 
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
 };
 
 SceneJS.Rotate.prototype.getXYZ = function() {
@@ -11051,7 +11051,7 @@ SceneJS.Rotate.prototype.getXYZ = function() {
 SceneJS.Rotate.prototype.setX = function(x) {
     this._core.x = x;
     this._core.setDirty();
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
 };
 
 SceneJS.Rotate.prototype.getX = function() {
@@ -11061,7 +11061,7 @@ SceneJS.Rotate.prototype.getX = function() {
 SceneJS.Rotate.prototype.setY = function(y) {
     this._core.y = y;
     this._core.setDirty();
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
 };
 
 SceneJS.Rotate.prototype.getY = function() {
@@ -11071,7 +11071,7 @@ SceneJS.Rotate.prototype.getY = function() {
 SceneJS.Rotate.prototype.setZ = function(z) {
     this._core.z = z;
     this._core.setDirty();
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
 };
 
 SceneJS.Rotate.prototype.getZ = function() {
@@ -11081,7 +11081,7 @@ SceneJS.Rotate.prototype.getZ = function() {
 SceneJS.Rotate.prototype.incAngle = function(angle) {
     this._core.angle += angle;
     this._core.setDirty();
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
 };
 
 SceneJS.Rotate.prototype._compile = function() {
@@ -11138,7 +11138,7 @@ SceneJS.Translate.prototype.setMultOrder = function(multOrder) {
 
     this._core.setDirty();
 
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
 };
 
 SceneJS.Translate.prototype.setXYZ = function(xyz) {
@@ -11151,7 +11151,7 @@ SceneJS.Translate.prototype.setXYZ = function(xyz) {
 
     this._core.setDirty();
 
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
 
     return this;
 };
@@ -11167,7 +11167,7 @@ SceneJS.Translate.prototype.getXYZ = function() {
 SceneJS.Translate.prototype.setX = function(x) {
     this._core.x = x;
     this._core.setDirty();
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
     return this;
 };
 
@@ -11178,7 +11178,7 @@ SceneJS.Translate.prototype.getX = function() {
 SceneJS.Translate.prototype.setY = function(y) {
     this._core.y = y;
     this._core.setDirty();
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
     return this;
 };
 
@@ -11189,7 +11189,7 @@ SceneJS.Translate.prototype.getY = function() {
 SceneJS.Translate.prototype.setZ = function(z) {
     this._core.z = z;
     this._core.setDirty();
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
     return this;
 };
 
@@ -11200,21 +11200,21 @@ SceneJS.Translate.prototype.getZ = function() {
 SceneJS.Translate.prototype.incX = function(x) {
     this._core.x += x;
     this._core.setDirty();
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
     return this;
 };
 
 SceneJS.Translate.prototype.incY = function(y) {
     this._core.y += y;
     this._core.setDirty();
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
     return this;
 };
 
 SceneJS.Translate.prototype.incZ = function(z) {
     this._core.z += z;
     this._core.setDirty();
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
     return this;
 };
 
@@ -11271,7 +11271,7 @@ SceneJS.Scale.prototype.setMultOrder = function(multOrder) {
     this._core.multOrder = multOrder;
 
     this._core.setDirty();
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
 };
 
 SceneJS.Scale.prototype.getAngle = function() {
@@ -11288,7 +11288,7 @@ SceneJS.Scale.prototype.setXYZ = function(xyz) {
 
     this._core.setDirty();
 
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
 };
 
 SceneJS.Scale.prototype.getXYZ = function() {
@@ -11302,7 +11302,7 @@ SceneJS.Scale.prototype.getXYZ = function() {
 SceneJS.Scale.prototype.setX = function(x) {
     this._core.x = x;
     this._core.setDirty();
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
 };
 
 SceneJS.Scale.prototype.getX = function() {
@@ -11312,7 +11312,7 @@ SceneJS.Scale.prototype.getX = function() {
 SceneJS.Scale.prototype.setY = function(y) {
     this._core.y = y;
     this._core.setDirty();
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
 };
 
 SceneJS.Scale.prototype.getY = function() {
@@ -11322,7 +11322,7 @@ SceneJS.Scale.prototype.getY = function() {
 SceneJS.Scale.prototype.setZ = function(z) {
     this._core.z = z;
     this._core.setDirty();
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
 };
 
 SceneJS.Scale.prototype.getZ = function() {
@@ -11332,7 +11332,7 @@ SceneJS.Scale.prototype.getZ = function() {
 SceneJS.Scale.prototype.incX = function(x) {
     this._core.x += x;
     this._core.setDirty();
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
 };
 
 SceneJS.Scale.prototype.incY = function(y) {
@@ -11343,7 +11343,7 @@ SceneJS.Scale.prototype.incY = function(y) {
 SceneJS.Scale.prototype.incZ = function(z) {
     this._core.z += z;
     this._core.setDirty();
-    this._engine.display.imageDirty = true;
+    this._grid.display.imageDirty = true;
 };
 
 SceneJS.Scale.prototype._compile = function() {

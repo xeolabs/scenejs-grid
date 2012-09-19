@@ -13,28 +13,28 @@ define(function() {
                      "other modules to control and create content on",
 
         /**
-         * Called by the engine to initialise the module.
+         * Called by the grid to initialise the module.
          *
-         * Via this method, the engine injects itself into the module, along with a map of engine
+         * Via this method, the grid injects itself into the module, along with a map of grid
          * resources that the module may use. The resources contain things like the HTML canvas
          * and certain nodes in the scene graph that the module may graft additional nodes onto.
          *
-         * Within this method, the module would typically create on the engine various actions
+         * Within this method, the module would typically create on the grid various actions
          * that it handles, as well as declare what events it fires.
          *
-         * @param {Engine} engine The engine
+         * @param {Grid} grid The grid
          * @param {Object} resources Resources shared among all modules
          * @param {JSON} configs Module configs
          */
-        init: function(engine, resources, configs) {
+        init: function(grid, resources, configs) {
 
             /*------------------------------------------------------------------------
              * Define the events fired by this module
              *----------------------------------------------------------------------*/
 
-            engine.createEvent("tick");     // Fired on each render loop iteration, the heartbeat of the engine
-            engine.createEvent("pickhit");  // Fired when "pick" action hits a named object in the scene
-            engine.createEvent("pickmiss"); // Fired when "pick" action misses all named objects in the scene
+            grid.createEvent("tick");     // Fired on each render loop iteration, the heartbeat of the grid
+            grid.createEvent("pickhit");  // Fired when "pick" action hits a named object in the scene
+            grid.createEvent("pickmiss"); // Fired when "pick" action misses all named objects in the scene
 
             /*------------------------------------------------------------------------
              * Create the scene graph skeleton
@@ -166,7 +166,7 @@ define(function() {
              *      {Boolean} rayPick   Optional flag to do ray-pick
              *----------------------------------------------------------------------*/
 
-            engine.createAction({
+            grid.createAction({
 
                 action: "pick",
 
@@ -191,10 +191,10 @@ define(function() {
                     //scene.renderFrame({ force: true });
 
                     if (hit) {
-                        engine.fireEvent("pickhit", hit);
+                        grid.fireEvent("pickhit", hit);
 
                     } else {
-                        engine.fireEvent("pickmiss", params);
+                        grid.fireEvent("pickmiss", params);
                     }
                 }
             });
@@ -222,7 +222,7 @@ define(function() {
 
             scene.onEvent("idle",
                     function() {
-                        engine.fireEvent("tick", {
+                        grid.fireEvent("tick", {
                             timeElapsed: (new Date()).getTime() - startTime
                         });
                     });
@@ -236,9 +236,9 @@ define(function() {
 
         /**
          * Destroys this module, deleting resources and anything that it
-         * previously created on the engine via its #init method.
+         * previously created on the grid via its #init method.
          */
-        destroy: function(engine, resources) {
+        destroy: function(grid, resources) {
 
             /* Destroy scene graph
              */

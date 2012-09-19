@@ -6,9 +6,9 @@ define(function() {
 
         description: "A cool grid floor",
 
-        init: function(engine, resources, configs) {
+        init: function(grid, resources, configs) {
 
-            engine.createAction({
+            grid.createAction({
                 action: "floor.show",
                 fn: function(params) {
 
@@ -16,7 +16,7 @@ define(function() {
                 }
             });
 
-            engine.createAction({
+            grid.createAction({
                 action: "floor.hide",
                 fn: function(params) {
 
@@ -98,11 +98,11 @@ define(function() {
             });
         },
 
-        destroy: function(engine, resources) {
+        destroy: function(grid, resources) {
 
-            engine.deleteAction("floor.show");
+            grid.deleteAction("floor.show");
 
-            engine.deleteAction("floor.hide");
+            grid.deleteAction("floor.hide");
 
             node.destroy();
         }

@@ -12,20 +12,20 @@ define(function() {
         description: "Describe your module here",
 
         /**
-         * This method is called by the engine (specifically by 'module.js') to initialise the module.
+         * This method is called by the grid (specifically by 'module.js') to initialise the module.
          *
-         * Via this method, the engine injects itself into the module, along with a map of global
+         * Via this method, the grid injects itself into the module, along with a map of global
          * resources that the module may use. The resources might contain things like the HTML canvas,
          * certain scene graph nodes etc.
          *
-         * Within this method, the module would typically create on the engine various actions
+         * Within this method, the module would typically create on the grid various actions
          * that it handles, as well as declare what events it fires.
          *
-         * @param {Engine} engine The engine
+         * @param {Grid} grid The grid
          * @param {Object} resources Resources shared among all modules
          * @param {JSON} configs Module configs
          */
-        init: function(engine, resources, configs) {
+        init: function(grid, resources, configs) {
 
             /* Use any configurations provided for this module (specified on the
              * "module.load" action invokation that loaded it):
@@ -38,11 +38,11 @@ define(function() {
 
             /* Declare events this module will fire:
              */
-            engine.createEvent("example.myevent");
+            grid.createEvent("example.myevent");
 
             /* Handle events, which are usually fired by other modules:
              */
-            engine.onEvent("someevent", // This event is not defined anywhere, so this will throw an exception
+            grid.onEvent("someevent", // This event is not defined anywhere, so this will throw an exception
                     function(params) {
                         var someParam = params.someParam;
                         var otherParam = params.otherParam;
@@ -51,13 +51,13 @@ define(function() {
 
             /* Create actions this module executes:
              */
-            engine.createAction({
+            grid.createAction({
 
                 action: "example.myaction",
 
                 fn: function(params, ok, error) {
 
-                    engine.fireEvent("example.myevent", {  // Actions normally fire events
+                    grid.fireEvent("example.myevent", {  // Actions normally fire events
                         bar: exampleConfig,
                         baz: exampleResource,
                         foo: params.someParam,
@@ -74,7 +74,7 @@ define(function() {
 
             /* Fire actions created by other modules:
              */
-            engine.send({
+            grid.send({
                 action: "othermodule.someaction",  // This action is not defined anywhere, so this will throw an exception
                 params: {
                     someParam: "someValue",
@@ -99,19 +99,19 @@ define(function() {
 
         /**
          * Destroys this module, deleting anything that it
-         * previously created on the engine via its #init method.
+         * previously created on the grid via its #init method.
          */
-        destroy: function(engine, resources) {
+        destroy: function(grid, resources) {
 
             /* Undeclare any events we declared:
              */
 
-            engine.deleteEvent("example.myevent");
+            grid.deleteEvent("example.myevent");
 
             /* Destroy any actions we created:
              */
 
-            engine.deleteAction("example.myaction");
+            grid.deleteAction("example.myaction");
         }
     };
 });

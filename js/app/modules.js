@@ -16,14 +16,14 @@ define(["module"], // RequireJS native module
             var loadedModulesInfo = {}; // Info on modules that are currently loaded, for querying
             var loadedModules = {};     // Modules that are currently loaded
 
-            var _engine;
+            var _grid;
             var _resources;
 
             return {
 
-                init: function(engine, resources) {
+                init: function(grid, resources) {
 
-                    _engine = engine;
+                    _grid = grid;
                     _resources = resources;
 
 
@@ -33,14 +33,14 @@ define(["module"], // RequireJS native module
 
                     var actionsCreated = {};
 
-                    engine.onEvent("action.created",
+                    grid.onEvent("action.created",
                             function(params) {
                                 actionsCreated[params.action] = {};
                             });
 
-                    engine.createEvent("module.loaded");
+                    grid.createEvent("module.loaded");
 
-                    engine.createAction({
+                    grid.createAction({
 
                         action: "module.load",
 
@@ -60,7 +60,7 @@ define(["module"], // RequireJS native module
 
                             var moduleConfigs = params.configs || {};
 
-                            engine.fireEvent("taskstarted", {
+                            grid.fireEvent("taskstarted", {
                                 taskId: "module.loading",
                                 description: "Loading modules"
                             });
@@ -88,9 +88,9 @@ define(["module"], // RequireJS native module
 
                                             actionsCreated = {};
 
-                                            module.init(engine, resources, moduleConfigs); // Initialise the module
+                                            module.init(grid, resources, moduleConfigs); // Initialise the module
 
-                                            engine.fireEvent("taskdone", {
+                                            grid.fireEvent("taskdone", {
                                                 taskId: "module.loading"
                                             });
 
@@ -106,7 +106,7 @@ define(["module"], // RequireJS native module
 
                                             loadedModules[moduleId] = module;
                                             
-                                            engine.fireEvent("module.loaded", moduleInfo); // Notify that the module is loaded
+                                            grid.fireEvent("module.loaded", moduleInfo); // Notify that the module is loaded
                                         }
 
                                         ok();
@@ -119,7 +119,7 @@ define(["module"], // RequireJS native module
                      * Module querying
                      *-------------------------------------------------------------------------------*/
 
-                    engine.createAction({
+                    grid.createAction({
 
                         action: "module.get",
 
@@ -147,9 +147,9 @@ define(["module"], // RequireJS native module
                      * Module unloading
                      *-------------------------------------------------------------------------------*/
 
-                    engine.createEvent("module.unloaded");
+                    grid.createEvent("module.unloaded");
 
-                    engine.createAction({
+                    grid.createAction({
 
                         action: "module.unload",
 
@@ -188,9 +188,9 @@ define(["module"], // RequireJS native module
                                     delete loadedModulesInfo[moduleId];
                                     delete loadedModules[moduleId];
 
-                                    module.destroy(_engine, _resources);
+                                    module.destroy(_grid, _resources);
 
-                                    engine.fireEvent("module.unloaded", moduleInfo); // Notify that each module is unloaded
+                                    grid.fireEvent("module.unloaded", moduleInfo); // Notify that each module is unloaded
                                 }
                             }
 
@@ -198,7 +198,7 @@ define(["module"], // RequireJS native module
                         }
                     });
 
-                    engine.onEvent(
+                    grid.onEvent(
                             "reset",
                             function() {
 
