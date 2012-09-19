@@ -17,10 +17,9 @@ grid.send({
             grid.send({
                 action: "module.load",
                 modules: [
-                    "demos/teapot",
-                    "skies/sky",
+                    "camera/camera",
                     "input/mouse",
-                    "camera/camera"
+                    "demos/teapot"
                 ]
             },
                     function() {
