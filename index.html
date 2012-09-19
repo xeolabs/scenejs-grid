@@ -50,17 +50,18 @@
         }
 
         #modal {
+            font-family: Monospace;
             display: none;
             background: #202020;
             border: solid gray 1px;
             width: 600px;
-            height: 200px;
+            height: 400px;
             padding: 20px;
         }
 
         #modal h1 {
-            font-family: Monospace;
-            font-size: 22px;
+
+            font-size: 32px;
             color: #66ff00;
         }
 
@@ -68,6 +69,7 @@
             font-family: Monospace;
             font-size: 16px;
             color: #66ff00;
+            padding-bottom: 20px;
         }
 
         #modal p {
@@ -77,8 +79,6 @@
         }
 
         #modal a {
-            font-family: Monospace;
-            font-size: 16px;
             color: #66ff00;
         }
 
@@ -97,12 +97,25 @@
             color: #66ff00;
         }
 
+        #modal ul {
+            color: #66ff00;
+        }
+
+        #modal li {
+            color: #66ff00;
+            padding-bottom: 7px;
+        }
+
         #modal .spinner {
             padding-top: 30px;
         }
     </style>
 </head>
 <body>
+
+<a href="https://github.com/xeolabs/scenejs-grid"><img style="position: absolute; top: 0; right: 0; border: 0;"
+                                                       src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"
+                                                       alt="Fork me on GitHub"></a>
 
 <link href="css/jquery.terminal.css" rel="stylesheet"/>
 
@@ -118,11 +131,32 @@
 <div id="modal">
     <h1>scenejs grid</h1>
 
-    <h2>a modular world engine from <a href="http://xeolabs.com" target="other">xeolabs</a></h2>
+    <h2>a modular world engine</h2>
 
+    <ul>
+        <li>the grid is an extensible world engine that lives at <a
+                href="https://github.com/xeolabs/scenejs-grid">GitHub</a></li>
+
+        <li>it's built on <a href="http://scenejs.org">SceneJS</a>, and is served straight out of the repository</li>
+
+        <li>you can contribute to the grid by forking the repository and adding modules and scripts - then when we merge
+            those, they will be available here
+        </li>
+        <li>type '~' to open a command console to speak to the grid
+        </li>
+        <li>read the documentation <a
+                href="https://github.com/xeolabs/scenejs-grid">here</a>
+        </li>
+    </ul>
+    <!--<ul>-->
+    <!--<li>blog page</li>-->
+    <!--<li>fork at github</li>-->
+    <!--<li>type '~' to open console</li>-->
+    <!--</ul>-->
     <div id="modal-message">
         <h3 class="wait">loading the grid, just a moment..</h3>
     </div>
+
 
     <!--<div id="modal-wait-or-go">-->
     <!--<img class="spinner" src="images/spinner.gif" alt="">-->
@@ -134,15 +168,11 @@
 </div>
 
 <script src="js/lib/require.js"></script>
+
 <script src="js/lib/jquery/jquery-lib.1.7.1.min.js"></script>
 <script src="js/lib/jquery/jquery.mousewheel-min.js"></script>
 <script src="js/lib/jquery/jquery.terminal-min.js"></script>
-
 <script src="js/lib/jquery/jquery.bpopup-0.7.0.min.js"></script>
-
-<script src="js/lib/scenejs/scenejs.js"></script>
-<script src="js/lib/scenejs/scenejs.box.js"></script>
-<script src="js/lib/scenejs/scenejs.sphere.js"></script>
 
 
 <!--[if IE]>
@@ -285,39 +315,59 @@ function initEngine(ok) {
         }
     });
 
-    require(['app/grid'], // Load the grid
-            function (grid) {
+    /* We'll load SceneJS libs using require.js so that the
+     * loading dialog can keep user entertained while they load
+     */
 
-                window.grid = grid; // Make grid available to boot script
+    require([ // SceneJS core
+        'scenejs/scenejs'
+    ],
+            function() {
 
-                bindEngineTaskIndicator(grid);
-
-                grid.send({ // Load native modules
-                    action: "module.load",
-                    modules: ["url/url"]
-                },
+                require([  // SceneJS plugins, which depend on SceneJS core
+                    'scenejs/scenejs.box',
+                    'scenejs/scenejs.sphere'
+                ],
                         function() {
 
-                            /* Get URL params - we're getting them off the hash so that we can
-                             * do this sort of thing:
-                             *
-                             * http://htmlpreview.github.com/?https://raw.github.com/xeolabs/.../index.html#script=tankDemo
-                             */
-                            grid.send({
-                                action: "url.getHashParams"
-                            },
-                                    function (data) {
+                            require([ // The grid engine
+                                'app/grid'
+                            ],
+                                    function (grid) {
 
-                                        var script = data["script"];
+                                        window.grid = grid; // Make grid available to boot script
 
-                                        if (script) { // Load boot script
-                                            require(["../../content/scripts/" + script],
-                                                    function() {
-                                                        ok(grid); // Booted off script
-                                                    });
-                                        } else {
-                                            ok(grid); // Done
-                                        }
+                                        bindEngineTaskIndicator(grid);
+
+                                        grid.send({ // Load native grid modules
+                                            action: "module.load",
+                                            modules: ["url/url"]
+                                        },
+                                                function() {
+
+                                                    /* Get URL params - we're getting them off the hash so that we can
+                                                     * do this sort of thing:
+                                                     *
+                                                     * http://htmlpreview.github.com/?https://raw.github.com/xeolabs/.../index.html#script=tankDemo
+                                                     */
+                                                    grid.send({
+                                                        action: "url.getHashParams"
+                                                    },
+                                                            function (data) {
+
+                                                                var script = data["script"];
+
+                                                                if (script) { // Load boot script
+
+                                                                    require(["../../content/scripts/" + script],
+                                                                            function() {
+                                                                                ok(grid); // Booted off script
+                                                                            });
+                                                                } else {
+                                                                    ok(grid); // Done
+                                                                }
+                                                            });
+                                                });
                                     });
                         });
             });
