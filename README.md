@@ -29,7 +29,7 @@ Examples
 -------------------------
 
 The engine is served right out of this repository. That means that you can fork this repo, add some modules
-and scripts, then when we pull in those changes your modules and scripts instantly become part of this engine.
+and scripts, then once we've pulled in those changes, your modules and scripts instantly become part of this engine.
 
 Here's a few examples for starters (might take a few seconds to load):
 
