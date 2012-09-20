@@ -17,30 +17,37 @@ grid.send({
             grid.send({
                 action: "module.load",
                 modules: [
-                    "camera/camera",
+                    "objects/vehicles/tank/tank",
+                    "objects/skies/sky",
+                    "objects/floors/grid",
                     "input/mouse",
-                    "demos/teapot"
+                    "camera/camera"
                 ]
             },
                     function() {
 
-                        grid.send({
-                            action:"camera.set",
-                            eye : { x: 0.0, y: 10.0, z: 10 },
-                            look : { y:1.0 },
-                            up : { y: 1.0 }
-                        });
+                        /* 3. Create some tanks via action defined by
+                         * the tank management module
+                         */
 
-                        /* 3. Wire together various events and actions
+                        for (var x = -200; x <= 200; x += 50) {
+                            for (var z = -200; z <= 200; z += 50) {
+                                grid.send({
+                                    action:"tank.create",
+                                    pos: { x: x, y: 0, z: z },
+                                    visible: true,
+                                    dir: Math.random() * 360,
+                                    gunDir: Math.random() * 360
+                                });
+                            }
+                        }
+
+                        /* 4. Wire together various events and actions
                          * defined by the modules
                          */
 
-                        var rotateX = 0;
-                        var rotateY = 0;
-
                         var lastX;
                         var lastY;
-
                         var dragging = false;
 
                         grid.onEvent(
@@ -57,13 +64,13 @@ grid.send({
 
                                     if (dragging) { // A ridiculously crude drag-pan control
 
-                                        rotateX += params.canvasY - lastY;
-                                        rotateY += params.canvasX - lastX;
-
                                         grid.send({
-                                            action:"demos.teapot.set",
-                                            rotateX: rotateX * 0.3,
-                                            rotateY: rotateY * 0.3
+                                            action:"camera.set",
+                                            eye: {
+                                                x: params.canvasX * 0.1,
+                                                y: 50,
+                                                z: params.canvasY * 0.1
+                                            }
                                         });
                                     }
 

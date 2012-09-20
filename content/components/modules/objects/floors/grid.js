@@ -46,13 +46,15 @@ define(function() {
                         shine:          2.0,
 
                         nodes: [
+
+                            /* Texture URIs are relative to the location of index.html                                 
+                             */
                             {
                                 type: "texture",
 
                                 layers: [
                                     {
-                                        uri: "content/textures/grid.jpg",
-                                        // Texture URLs are relative to index.html
+                                        uri: "content/components/textures/grid.jpg",
                                         minFilter: "linearMipMapLinear",
                                         magFilter: "linear",
                                         wrapS: "repeat",

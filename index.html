@@ -150,8 +150,8 @@
             repository
         </li>
 
-        <li>you can contribute to the grid by forking the repository and adding modules and scripts - then when we merge
-            those, they will be available here
+        <li>you can contribute to the grid by forking the repository and adding modules and scripts - then we'll merge
+            them and they will be available here
         </li>
         <li>type '~' to open a command shell to speak to the grid
         </li>
@@ -166,7 +166,7 @@
     <!--</ul>-->
 
     <div id="modal-boot-script">
-        <p>boot script: <span id="modal-boot-script-name"></span></p>
+        <p>using boot script: <span id="modal-boot-script-name"></span></p>
     </div>
 
     <div id="modal-message">
@@ -321,6 +321,25 @@ jQuery(document).ready(
  */
 function initEngine(ok) {
 
+    /* Get selected boot script name and path off URL hash. We use the hash so that the full URL to the
+     * engine instance can be used a parameter for web service like this:
+     * http://htmlpreview.github.com/?https://raw.github.com/xeolabs/scenejs-grid/master/index.html#script=demos/teapot
+     */
+    var urlHashParams = getURLHashParams();
+    var bootScriptName = urlHashParams["script"];
+    var bootScriptPath;
+
+    /* Tell user which script we're booting off, if any
+     */
+    if (bootScriptName) {
+        bootScriptPath = "content/scripts/" + bootScriptName + ".js";
+        $("#modal-boot-script-name").html("<a href='" + bootScriptPath + "' target='_blank'>" + bootScriptName + ".js</a>");
+    } else {
+        $("#modal-boot-script-name").html("(no script selected)");
+    }
+
+    /* Configure RequireJS
+     */
     requirejs.config({
 
         //By default load any module IDs from js/lib
@@ -339,7 +358,6 @@ function initEngine(ok) {
     /* We'll load SceneJS libs using require.js so that the
      * loading dialog can keep user entertained while they load
      */
-
     require([ // SceneJS core
         'scenejs/scenejs'
     ],
@@ -357,45 +375,36 @@ function initEngine(ok) {
                             ],
                                     function (grid) {
 
-                                        window.grid = grid; // Make grid available to boot script
+                                        window.grid = grid; // Make grid available to boot scripts
+
+                                        bindGridErrors(grid);
 
                                         bindEngineTaskIndicator(grid);
 
-                                        grid.send({ // Load native grid modules
-                                            action: "module.load",
-                                            modules: ["url/url"]
-                                        },
-                                                function() {
+                                        /* Load boot script
+                                         */
+                                        if (bootScriptName) {
 
-                                                    /* Get URL params - we're getting them off the hash so that we can
-                                                     * do this sort of thing:
-                                                     *
-                                                     * http://htmlpreview.github.com/?https://raw.github.com/xeolabs/.../index.html#script=tankDemo
-                                                     */
-                                                    grid.send({
-                                                        action: "url.getHashParams"
-                                                    },
-                                                            function (data) {
-
-                                                                var script = data["script"];
-
-                                                                if (script) { // Load boot script
-
-                                                                    var scriptSrc = "content/scripts/" + script + ".js";
-
-                                                                    $("#modal-boot-script-name").html("<a href='" + scriptSrc + "' target='_blank'>" + script + "</a>");
-
-                                                                    require(["../../content/scripts/" + script],
-                                                                            function() {
-                                                                                ok(grid); // Booted off script
-                                                                            });
-                                                                } else {
-                                                                    ok(grid); // Done
-                                                                }
-                                                            });
-                                                });
+                                            require(["../../content/scripts/" + bootScriptName],
+                                                    function() {
+                                                        ok(grid); // Booted off script
+                                                    });
+                                        } else {
+                                            ok(grid); // Done
+                                        }
                                     });
                         });
+            });
+}
+
+/* Handle errors from the grid
+ */
+function bindGridErrors(grid) {
+
+    grid.onEvent(
+            "error",
+            function(error) {
+                alert(JSON.stringify(error));
             });
 }
 
@@ -475,6 +484,26 @@ function initTerminal(grid, $) {
 
                 eval(command);
             });
+}
+
+
+function getURLHashParams() {
+
+    var hashParams = {};
+
+    var e;
+    var a = /\+/g;  // Regex for replacing addition symbol with a space
+    var r = /([^&;=]+)=?([^&;]*)/g;
+    var d = function (s) {
+        return decodeURIComponent(s.replace(a, " "));
+    };
+    var q = window.location.hash.substring(1);
+
+    while (e = r.exec(q)) {
+        hashParams[d(e[1])] = d(e[2]);
+    }
+
+    return hashParams;
 }
 
 </script>

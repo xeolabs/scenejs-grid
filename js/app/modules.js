@@ -55,7 +55,7 @@ define(["module"], // RequireJS native module
                             var modulePaths = [];
 
                             for (var i = 0, len = modules.length; i < len; i++) {
-                                modulePaths.push("../../content/modules/" + modules[i]);
+                                modulePaths.push("../../content/components/modules/" + modules[i]);
                             }
 
                             var moduleConfigs = params.configs || {};
@@ -113,7 +113,7 @@ define(["module"], // RequireJS native module
 
                                             var moduleInfo = {
                                                 description: module.description || "no description",
-                                                src: moduleBaseURL + "/content/modules/" + modulePaths[i] + ".js",
+                                                src: moduleBaseURL + "/content/components/modules/" + modulePaths[i] + ".js",
                                                 events: [],
                                                 actions: actionsCreated
                                             };

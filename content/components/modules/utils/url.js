@@ -6,14 +6,9 @@ define(function() {
     return {
 
         /**
-         * Display name for the module, intended for showing in menu widgets
-         */
-        displayName: "Access to the request URL",
-
-        /**
          * Brief description of the module
          */
-        description: "Provides actions for accessing the URL the grid is loaded with",
+        description: "Engine URL query",
 
         /**
          * Called by the grid to initialise the module.

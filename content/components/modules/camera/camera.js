@@ -1,5 +1,5 @@
 /**
- * Engine module which provides basic camera controls
+ * Module providing basic camera controls
  *
  */
 define(function() {
