@@ -23,7 +23,7 @@ define(function() {
         /**
          * Brief description of the module
          */
-        description: "Notifies of basic mouse events on the canvas",
+        description: "Fires canvas mouse events",
 
         /**
          * Called by the grid to initialise the module.

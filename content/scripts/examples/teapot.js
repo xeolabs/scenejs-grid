@@ -10,7 +10,7 @@ grid.send({
 },
         function() {
 
-            /* 2. Load modules for managing tanks, mouse input and camera,
+            /* 2. Load modules for managing teapot, mouse input and camera,
              *    which will use resources provided by the scene manager module
              */
 

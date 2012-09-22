@@ -9,7 +9,7 @@ define(function() {
         /**
          * Brief description of the module
          */
-        description: "Provides basic actions for controlling the camera",
+        description: "Controls the camera",
 
         /**
          * Called by the grid to initialise the module.
@@ -29,11 +29,7 @@ define(function() {
 
             var lookat = resources.sceneNodes.lookat;  // Get the scene's lookAt node from the grid resources
 
-            /* Define event to notify of camera updates
-             */
-            grid.createEvent("camera.updated");
-
-            /* Create action to update the camera
+            /* Sets the state of the camera
              */
             grid.createAction({
 
@@ -53,22 +49,24 @@ define(function() {
                 }
             });
 
-            /* Create action to reset the camera
+             /* Gets the state of the camera
              */
-            var origEye = lookat.getEye();
-            var origLook = lookat.getLook();
-            var origUp = lookat.getUp();
-
             grid.createAction({
-                action: "camera.reset",
+
+                action: "camera.get",
+
                 fn: function(params, ok) {
-                    lookat.setEye(origEye);
-                    lookat.setLook(origLook);
-                    lookat.setUp(origUp);
-                    ok();
+
+                    // Safest to store state in the camera node
+                    // because other modules may modify it also
+
+                    ok({
+                        eye: lookat.getEye(),
+                        look: lookat.getLook(),
+                        up: lookat.getUp()
+                    });
                 }
             });
-
         },
 
         /**
@@ -77,11 +75,9 @@ define(function() {
          */
         destroy: function(grid, resources) {
 
-            grid.deleteEvent("camera.updated");
-
             grid.deleteAction("camera.set");
 
-            grid.deleteAction("camera.reset");
+            grid.deleteAction("camera.get");
         }
     };
 });

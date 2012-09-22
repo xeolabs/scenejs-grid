@@ -59,14 +59,9 @@ define(function() {
     return {
 
         /**
-         * Display name for the module, intended for showing in menu widgets
-         */
-        displayName: "Mouse canvas events",
-
-        /**
          * Brief description of the module
          */
-        description: "Notifies of basic mouse events on the canvas",
+        description: "Fires touch events on the canvas",
 
         /**
          * Called by the grid to initialise the module.
