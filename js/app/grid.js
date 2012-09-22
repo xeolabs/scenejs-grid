@@ -1,8 +1,12 @@
-define([
-    "map", // Map with automatic IDs
-    "app/modules" // Scene management
-],
-        function(map, modules) {
+/*-----------------------------------------------------------------------------------------------------
+ * The grid
+ *
+ * https://github.com/xeolabs/scenejs-grid/wiki/Grid
+ *----------------------------------------------------------------------------------------------------*/
+
+define(["map"], // Map with automatic IDs
+
+        function(map) {
 
             var grid = new (function() {
 
@@ -24,7 +28,21 @@ define([
 
                 var self = this;
 
+
+                /*-----------------------------------------------------------------------------------------------------
+                 * Events
+                 *
+                 * https://github.com/xeolabs/scenejs-grid/wiki/Events
+                 *----------------------------------------------------------------------------------------------------*/
+
+                /**
+                 * Define an event on the grid
+                 */
                 this.createEvent = function(type) {
+
+                    if (!type) {
+                        throw "grid.createEvent: argument expected: type \nhttps://github.com/xeolabs/scenejs-grid/wiki/Events";
+                    }
 
                     if (this._eventSubs[type]) {        // Event type already defined
                         return;
@@ -36,12 +54,23 @@ define([
                     };
                 };
 
+                /**
+                 * Subscribe to an event on the grid
+                 */
                 this.onEvent = function(type, handler) {
+
+                    if (!type || typeof type != "string") {
+                        throw "grid.onEvent: illegal arguments: \nhttps://github.com/xeolabs/scenejs-grid/wiki/Events";
+                    }
+
+                    if (!handler || typeof handler != "function") {
+                        throw "grid.onEvent: illegal arguments: \nhttps://github.com/xeolabs/scenejs-grid/wiki/Events";
+                    }
 
                     var subs = this._eventSubs[type];
 
                     if (!subs) {
-                        throw "event type not supported: '" + type + "'";
+                        throw "grid.onEvent: event not supported: '" + type + "'\nhttps://github.com/xeolabs/scenejs-grid/wiki/Events";
                     }
 
                     var handle = this._handlePool.addItem(type);
@@ -52,17 +81,26 @@ define([
                     return handle;
                 };
 
+                /**
+                 * Fire an event at the grid
+                 */
                 this.fireEvent = function(type, params) {
+
+                    if (!type) {
+                        throw "grid.fireEvent: argument expected: type \nhttps://github.com/xeolabs/scenejs-grid/wiki/Events";
+                    }
 
                     var subs = this._eventSubs[type];
 
                     if (!subs) {
-                        throw "event not supported: '" + type + "'";
+                        throw "grid.fireEvent: event not supported: '" + type + "'\nhttps://github.com/xeolabs/scenejs-grid/wiki/Events";
                     }
 
                     if (subs.numSubs > 0) {             // Don't handle if no subscribers
 
                         var handlers = subs.handlers;
+
+                        params = params || {};
 
                         for (var handle in handlers) {
                             if (handlers.hasOwnProperty(handle)) {
@@ -73,11 +111,15 @@ define([
                 };
 
                 /**
-                 * Unsubscribes to an event previously subscribed to
+                 * Undo an event subscription on the grid
                  *
                  * @param {String} handle Subscription handle
                  */
                 this.unEvent = function(handle) {
+
+                    if (!type) {
+                        throw "grid.unEvent: argument expected: handle \nhttps://github.com/xeolabs/scenejs-grid/wiki/Events";
+                    }
 
                     var type = this._handlePool.items[handle];
 
@@ -98,27 +140,37 @@ define([
                     subs.numSubs--;
                 };
 
+                /**
+                 * Undefine an event on the grid
+                 */
                 this.deleteEvent = function(type) {
                     delete this._eventSubs[type];
                 };
 
-                /**
+
+                /*-----------------------------------------------------------------------------------------------------
+                 * ACTIONS
                  *
+                 * https://github.com/xeolabs/scenejs-grid/wiki/Actions
+                 *----------------------------------------------------------------------------------------------------*/
+
+                /**
+                 * Create an action on the grid
                  */
                 this.createAction = function(action) {
 
                     var actionId = action.action;
 
                     if (!actionId) {
-                        throw "param expected: action.action";
+                        throw "grid.createAction: argument expected: action \nhttps://github.com/xeolabs/scenejs-grid/wiki/Actions";
                     }
 
                     if (this._actions[actionId]) {
-                        throw "action already exists: " + actionId;
+                        throw "grid.createAction: action already exists: " + actionId + " \nhttps://github.com/xeolabs/scenejs-grid/wiki/Actions";
                     }
 
                     if (!action.fn) {
-                        throw "param expected: action.fn";
+                        throw "grid.createAction: param expected: fn \nhttps://github.com/xeolabs/scenejs-grid/wiki/Actions";
                     }
 
                     this._actions[actionId] = action;
@@ -128,113 +180,35 @@ define([
                     return action;
                 };
 
+                /**
+                 * Fire an action on the grid
+                 */
                 this.send = function(message, ok, error) {
 
                     ok = ok || this._noop;
                     error = error || this._noop;
 
-                    if (message.action) {
-                        this._doAction(
-                                false,
-                                message,
-
-                            /* ok
-                             */
-                                function(data) {
-
-                                    if (data) {
-                                        self.fireEvent("data", {
-                                            data: data
-                                        });
-                                    }
-
-                                    ok(data);
-                                },
-
-                            /* error
-                             */
-                                function(error) {
-
-                                    if (error) {
-                                        self.fireEvent("error", {
-                                            error: error
-                                        });
-                                    }
-
-                                    ok(error);
-                                });
-
-                    } else {
-                        ok();
-                    }
-                };
-
-                this._doAction = function(insideRightFringe, message, ok, error) {
-
                     var actionId = message.action;
 
-                    ok = ok || this._noop;
-
-                    error = error || this._noop;
-
                     if (!actionId) {
-                        throw "action property missing: 'action'";
+                        throw "grid.send: param expected: action \nhttps://github.com/xeolabs/scenejs-grid/wiki/Actions";
                     }
 
                     var action = this._actions[actionId];
 
                     if (!action) {
-                        throw "action not supported: '" + actionId + "'";
+                        throw "grid.send: action not supported: '" + actionId + "'\nhttps://github.com/xeolabs/scenejs-grid/Actions";
                     }
 
-                    var childActions = message.actions;
-                    var self = this;
-
-                    if (childActions && childActions.length > 0) {
-
-                        action.fn(
-                                message,
-
-                                function() {
-
-                                    var childaction;
-
-                                    for (var i = 0, len = childActions.length; i < len; i++) {
-
-                                        childaction = childActions[i];
-
-                                        if (!childaction) {
-                                            throw "action '" + actionId + "' has extra comma in child action list";
-
-                                        } else {
-
-                                            self._doAction(
-                                                    insideRightFringe || (i < len - 1),
-                                                    childaction,
-                                                    ok,
-                                                    error);
-                                        }
-                                    }
-                                },
-                                error);
-                    } else {
-
-                        action.fn(
-                                message,
-                                function(data) {
-                                    if (!insideRightFringe) {
-                                        ok(data);
-                                    }
-                                },
-                                error);
-                    }
+                    action.fn(message, ok, error);
                 };
+
 
                 this._noop = function() {
                 };
 
                 /**
-                 *
+                 * Delete an action on the grid
                  */
                 this.deleteAction = function(actionId) {
 
@@ -245,7 +219,7 @@ define([
 
 
                 /*----------------------------------------------------------------------
-                 * Create native events and actions
+                 * Native events and actions
                  *---------------------------------------------------------------------*/
 
                 /* Create event to notify of action results
@@ -300,23 +274,7 @@ define([
                         ok();
                     }
                 });
-
-
             })();
-
-
-            /*------------------------------------------------------------------------
-             * Initialise the modules container
-             *----------------------------------------------------------------------*/
-
-            /* Map of resources that will be shared among all modules. Some modules will
-             * create resources, while others will use them. For example, a module that
-             * defines a scene graph will put particular scene nodes on this map, while
-             * another module that manipulates the scene graph would update those nodes.
-             */
-            var resources = {};
-
-            modules.init(grid, resources);
 
             return grid;
         });

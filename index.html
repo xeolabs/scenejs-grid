@@ -265,20 +265,22 @@ $.extend_if_has = function(desc, source, array) {
 
         var td = this.find('.td');
 
+
         self.terminal = td.terminal(eval, settings);
 
         var focus = false;
 
-        $(document.documentElement).keypress(function(e) {
-            if (e.which == 96) {
-                self.slideToggle('fast');
-                self.terminal.set_command('');
-                self.terminal.focus(focus = !focus);
-                self.terminal.attr({
-                    scrollTop: self.terminal.attr("scrollHeight")
+        $(document.documentElement).keypress(
+                function(e) {
+                    if (e.which == 96) {
+                        self.slideToggle('fast');
+                        self.terminal.set_command('');
+                        self.terminal.focus(focus = !focus);
+                        self.terminal.attr({
+                            scrollTop: self.terminal.attr("scrollHeight")
+                        });
+                    }
                 });
-            }
-        });
 
         $('body').data('tilda', this);
 
@@ -355,6 +357,7 @@ function initEngine(ok) {
         }
     });
 
+
     /* We'll load SceneJS libs using require.js so that the
      * loading dialog can keep user entertained while they load
      */
@@ -371,7 +374,8 @@ function initEngine(ok) {
                         function() {
 
                             require([ // The grid engine
-                                'app/grid'
+                                'app/grid',
+                                'app/modules'
                             ],
                                     function (grid) {
 
@@ -468,7 +472,7 @@ function initTerminal(grid, $) {
                     grid.onEvent("data",
                             function (params) { // Echo action responses
                                 if (params) {
-                                    terminal.echo(JSON.stringify(params, null, 4));
+                                    terminal.echo(JSON.stringify(params, null, 4)).css("color", "green");
                                 }
                             });
 
@@ -479,10 +483,28 @@ function initTerminal(grid, $) {
                                 }
                             });
 
+                    requirejs.onError = function (err) {
+
+                        if (err.requireType === 'timeout') {
+
+                            var msg = "load timeout: " + err.requireModules + "\nhttps://github.com/xeolabs/scenejs-grid/wiki/Module-load-timeout";
+
+                            terminal.echo(msg).css("color", "red");
+
+                        } else {
+                            terminal.echo("unhandled exception thrown by Require.JS:").css("color", "red");
+                            terminal.echo(JSON.stringify(err, null, 4)).css("color", "red");
+                        }
+                    };
+
                     dataEcho = true;
                 }
 
+                //try {
                 eval(command);
+                //                } catch (e) {
+                //                    terminal.echo("uncaught exception: " + (e.message || e) + " - check browser console").css("color", "red");
+                //                }
             });
 }
 
