@@ -175,8 +175,6 @@ define(["map"], // Map with automatic IDs
 
                     this._actions[actionId] = action;
 
-                    this.fireEvent("action.created", { action:action });
-
                     return action;
                 };
 
@@ -211,10 +209,7 @@ define(["map"], // Map with automatic IDs
                  * Delete an action on the grid
                  */
                 this.deleteAction = function(actionId) {
-
                     delete this._actions[actionId];
-
-                    this.fireEvent("action.deleted", { action: actionId });
                 };
 
 
@@ -222,30 +217,33 @@ define(["map"], // Map with automatic IDs
                  * Native events and actions
                  *---------------------------------------------------------------------*/
 
-                /* Create event to notify of action results
+                /* Signals that action result are available
                  */
                 this.createEvent("data");
 
-                /* Create event to notify of error
+                /* Signals error
                  */
                 this.createEvent("error");
 
-                /* Create event to notify of task starting. The grid is "busy" while
-                 * "taskstarted" events outnumber "taskdone" events. 
-                 */
-                this.createEvent("taskstarted");
-
-                /* Create event to notify of task finishing
-                 */
-                this.createEvent("taskdone");
-
-                /* Create event to notify of action creations
-                 */
-                this.createEvent("action.created");
-
-                /* Create event to notify of general grid reset
+                /* Signals of general grid reset
                  */
                 this.createEvent("reset");
+
+                /* Signals task started
+                 */
+                this.createEvent("task.started");
+
+                /* Signals task completed
+                 */
+                this.createEvent("task.finished");
+
+                /* Signals task failed
+                 */
+                this.createEvent("task.failed");
+
+                /* Signals task aborted
+                 */
+                this.createEvent("task.aborted");
 
                 this.createAction({
                     action: "action.get",

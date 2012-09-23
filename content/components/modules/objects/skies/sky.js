@@ -22,7 +22,7 @@ define(function() {
                 }
             });
 
-            node = resources.sceneNodes.sky.addNode({
+            node = resources.sceneNodes.sky.addNode({  
 
                 type: "flags",  // Flags allow us to show/hide the sky
                 id: "sky-root",

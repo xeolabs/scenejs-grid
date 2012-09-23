@@ -117,14 +117,40 @@
         #modal .spinner {
             padding-top: 30px;
         }
+
+            /* Task monitor widget container
+            */
+
+        #grid-taskmonitor {
+            position: absolute;
+            width: 300px;
+            right: 10px;
+            top: 0px;
+            padding: 10px;
+            z-index: 2000;
+        }
+
+            /* Task monitor widget entries
+            */
+
+        #grid-taskmonitor p {
+            font-family: Monospace;
+            font-size: 13px;
+            background: url(images/spinner-ball-small.gif) no-repeat 2px 6px;
+            padding: 5px;
+            padding-left: 30px;
+            margin: 2px;
+            color: white;
+            /*display: none; *//* For fadeIn */
+        }
     </style>
 </head>
 <body>
 
-<a href="https://github.com/xeolabs/scenejs-grid" target="_blank"><img
-        style="position: absolute; top: 0; right: 0; border: 0;"
-        src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"
-        alt="Fork me on GitHub"></a>
+<!--<a href="https://github.com/xeolabs/scenejs-grid" target="_blank"><img-->
+<!--style="position: absolute; top: 0; right: 0; border: 0;"-->
+<!--src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"-->
+<!--alt="Fork me on GitHub"></a>-->
 
 <link href="css/jquery.terminal.css" rel="stylesheet"/>
 
@@ -179,8 +205,7 @@
     <!--</div>-->
 </div>
 
-<div id="footer">
-    <!--<span>SceneJS Engine&nbsp;</span><span id="status">SceneJS Engine&nbsp;</span>-->
+<div id="grid-taskmonitor">
 </div>
 
 <script src="js/lib/require.js"></script>
@@ -295,25 +320,25 @@ $.extend_if_has = function(desc, source, array) {
 jQuery(document).ready(
         function($) {
 
-            $("body").click(false);
+            //            $("body").click(false);
 
-            $("#modal").bPopup({
-                //  modalClose: false
-            });
+            //            $("#modal").bPopup({
+            //                //  modalClose: false
+            //            });
 
             initEngine(
                     function(grid) {
 
                         initTerminal(grid, $);
 
-                        $("#modal-message").html("<h3 class='ready'>ready - click to start</h3>");
-
-                        $("body").unbind('click');
-
-                        $("#modal").click(
-                                function() {
-                                    $("#modal").bPopup().close();
-                                });
+                        //                        $("#modal-message").html("<h3 class='ready'>ready - click to start</h3>");
+                        //
+                        //                        $("body").unbind('click');
+                        //
+                        //                        $("#modal").click(
+                        //                                function() {
+                        //                                    $("#modal").bPopup().close();
+                        //                                });
                     });
 
         });
@@ -343,6 +368,8 @@ function initEngine(ok) {
     /* Configure RequireJS
      */
     requirejs.config({
+
+        // enforceDefine: true,
 
         //By default load any module IDs from js/lib
         baseUrl: 'js/lib',
@@ -383,7 +410,7 @@ function initEngine(ok) {
 
                                         bindGridErrors(grid);
 
-                                        bindEngineTaskIndicator(grid);
+                                        initTaskMonitor(grid);
 
                                         /* Load boot script
                                          */
@@ -408,57 +435,13 @@ function bindGridErrors(grid) {
     grid.onEvent(
             "error",
             function(error) {
-                alert(JSON.stringify(error));
+                //alert(JSON.stringify(error));
             });
 }
 
-/* Indicates when background tasks are running inside the grid
- */
-function bindEngineTaskIndicator(grid) {
-
-    var numTasks = 0;
-
-    var tasks = {};
-
-    grid.onEvent("taskstarted",
-            function(params) {
-
-                var taskId = params.taskId;
-                var description = params.description;
-
-                numTasks++;
-
-                tasks[taskId] = "[task running]: " + description;
-
-                showTasks();
-            });
-
-    grid.onEvent("taskdone",
-            function(params) {
-
-                var taskId = params.taskId;
-
-                numTasks--;
-
-                delete tasks[taskId];
-
-                showTasks();
-            });
-
-    function showTasks() {
-
-        var str = [];
-
-        for (var taskId in tasks) {
-            str.push(tasks[taskId]);
-        }
-
-        $("#status").text(str.join(""));
-    }
-}
 
 /* Initialises the terminal and binds grid output and errors notifications
- * so that they are display in the terminal
+ * so that they are displayed in the terminal
  */
 function initTerminal(grid, $) {
 
@@ -479,33 +462,108 @@ function initTerminal(grid, $) {
                     grid.onEvent("error",
                             function (params) { // Echo action responses
                                 if (params) {
-                                    terminal.echo(JSON.stringify(params, null, 4)).css("color", "red");
+                                    terminal.echo(params.error).css("color", "red");
                                 }
                             });
 
-                    requirejs.onError = function (err) {
-
-                        if (err.requireType === 'timeout') {
-
-                            var msg = "load timeout: " + err.requireModules + "\nhttps://github.com/xeolabs/scenejs-grid/wiki/Module-load-timeout";
-
-                            terminal.echo(msg).css("color", "red");
-
-                        } else {
-                            terminal.echo("unhandled exception thrown by Require.JS:").css("color", "red");
-                            terminal.echo(JSON.stringify(err, null, 4)).css("color", "red");
-                        }
-                    };
+                    //                                        requirejs.onError = function (err) {
+                    //
+                    //                                            if (err.requireType === 'timeout') {
+                    //
+                    //                                                var msg = "load timeout: " + err.requireModules + "\nhttps://github.com/xeolabs/scenejs-grid/wiki/Module-load-timeout";
+                    //
+                    //                                                terminal.echo(msg).css("color", "red");
+                    //
+                    //                                            } else {
+                    //                                                terminal.echo("unhandled exception thrown by Require.JS:").css("color", "red");
+                    //                                                terminal.echo(JSON.stringify(err, null, 4)).css("color", "red");
+                    //                                            }
+                    //                                        };
 
                     dataEcho = true;
                 }
 
-                //try {
-                eval(command);
-                //                } catch (e) {
-                //                    terminal.echo("uncaught exception: " + (e.message || e) + " - check browser console").css("color", "red");
-                //                }
+                try {
+                    eval(command);
+                } catch (e) {
+                    terminal.echo("uncaught exception: " + (e.message || e) + " - check browser console").css("color", "red");
+                }
             });
+}
+
+
+function initTaskMonitor(grid) {
+
+    var monitor = $("#grid-taskmonitor");
+
+    if (!monitor) {
+        throw "could not find task monitor element";
+    }
+
+    var tasks = {};
+
+    grid.onEvent("task.started",
+            function(params) {
+
+                var taskId = params.taskId;
+                var description = params.description;
+
+                var elementId = "taskmonitor-" + taskId;
+
+                var taskElement = $("<p id='" + elementId + "'>" + description + "</p>");
+
+                tasks[taskId] = {
+                    description: description,
+                    element: taskElement
+                };
+
+                monitor.append(taskElement);
+
+              //  taskElement.fadeIn(1000);
+            });
+
+    grid.onEvent("task.finished", taskFinished);
+    grid.onEvent("task.failed", taskFailed);
+    grid.onEvent("task.aborted", taskAborted);
+
+    function taskFinished(params) {
+
+        var taskId = params.taskId;
+        var task = tasks[taskId];
+
+        if (task) {
+            task.element.css("color", "green");
+
+            delete tasks[taskId];
+
+            setTimeout(
+                    function() {
+
+                        task.element.css('background-image', 'url(images/tick-icon.png)');
+
+//                        task.element.fadeOut(2000,
+//                                function() {
+                                    task.element.remove();
+                                //});
+                    }, 4000);
+        }
+    }
+
+    function taskFailed(params) {
+        var taskId = params.taskId;
+        var task = tasks[taskId];
+        if (task) {
+            task.element.css("color", "red");
+        }
+    }
+
+    function taskAborted(params) {
+        var taskId = params.taskId;
+        var task = tasks[taskId];
+        if (task) {
+            task.element.css("color", "yellow");
+        }
+    }
 }
 
 
