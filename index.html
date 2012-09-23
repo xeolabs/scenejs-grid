@@ -140,8 +140,7 @@
             padding: 5px;
             padding-left: 30px;
             margin: 2px;
-            color: white;
-            /*display: none; *//* For fadeIn */
+            color: white; /*display: none; *//* For fadeIn */
         }
     </style>
 </head>
@@ -519,7 +518,7 @@ function initTaskMonitor(grid) {
 
                 monitor.append(taskElement);
 
-              //  taskElement.fadeIn(1000);
+                //  taskElement.fadeIn(1000);
             });
 
     grid.onEvent("task.finished", taskFinished);
@@ -532,20 +531,25 @@ function initTaskMonitor(grid) {
         var task = tasks[taskId];
 
         if (task) {
-            task.element.css("color", "green");
 
             delete tasks[taskId];
 
             setTimeout(
                     function() {
 
+                        task.element.css("color", "green");
                         task.element.css('background-image', 'url(images/tick-icon.png)');
 
-//                        task.element.fadeOut(2000,
-//                                function() {
+                        //                        task.element.fadeOut(2000,
+                        //                                function() {
+
+                        setTimeout(
+                                function() {
                                     task.element.remove();
-                                //});
-                    }, 4000);
+                                }, 2000);
+
+                        //});
+                    }, 2000);
         }
     }
 
