@@ -23,41 +23,6 @@ define(["app/grid"],
             var docLocation = document.location.href;
             var moduleBaseURL = docLocation.substring(0, docLocation.lastIndexOf("/"));
 
-            //            /*
-            //             * Fire a "task.failed" event for each module load timeout reported by RequireJS
-            //             */
-            //            requirejs.onError = function (err) {
-            //
-            //                if (err.requireType === 'timeout') {
-            //
-            //                    var paths = err.requireModules.split(" ");
-            //                    var path;
-            //
-            //                    for (var i = 0, len = paths.length; i < len; i++) {
-            //
-            //                        path = paths[i];
-            //
-            //                        if (path.indexOf(BASE_PATH) == 0) {
-            //
-            //                            /* Assume anything loaded from modules dir is a
-            //                             * module loaded by the module loading service
-            //                             */
-            //
-            //                            var moduleId = path.substring(BASE_PATH.length);
-            //
-            //                            grid.fireEvent("task.failed", {
-            //                                taskId: moduleId,
-            //                                message: "module load timed out"
-            //                            });
-            //                        }
-            //                    }
-            //
-            //                } else {
-            //
-            //                }
-            //            };
-
-
             /**
              * Action to load one or more modules
              */
@@ -91,12 +56,6 @@ define(["app/grid"],
 
                 if (!!loadedModules[moduleId]) {
 
-                    //                    grid.fireEvent("task.failed", {
-                    //                        taskId: moduleId
-                    //                    });
-
-                    //  abortLoads(moduleIds, moduleIdx + 1);
-
                     var err = "module already loaded: " + moduleId
                             + "\nhttps://github.com/xeolabs/scenejs-grid/wiki/Modules";
 
@@ -123,8 +82,6 @@ define(["app/grid"],
                                     taskId: moduleId
                                 });
 
-                                //                                abortLoads(moduleIds, moduleIdx + 1);
-
                                 var err = "module failed to load: " + moduleId
                                         + ".init \nhttps://github.com/xeolabs/scenejs-grid/wiki/Modules";
 
@@ -146,8 +103,6 @@ define(["app/grid"],
                                     taskId: moduleId
                                 });
 
-                                //                              abortLoads(moduleIds, moduleIdx + 1);
-
                                 var err = "module method missing: " + moduleId
                                         + ".init \nhttps://github.com/xeolabs/scenejs-grid/wiki/Modules";
 
@@ -167,8 +122,6 @@ define(["app/grid"],
                                 grid.fireEvent("task.failed", {
                                     taskId: moduleId
                                 });
-
-                                //                            abortLoads(moduleIds, moduleIdx + 1);
 
                                 var err = "module method missing: "
                                         + moduleId + ".destroy \nhttps://github.com/xeolabs/scenejs-grid/wiki/Modules";
@@ -193,8 +146,6 @@ define(["app/grid"],
                                 grid.fireEvent("task.failed", {
                                     taskId: moduleId
                                 });
-
-                                //                          abortLoads(moduleIds, moduleIdx + 1);
 
                                 var err = "module init failed - " + moduleId + ".init threw an exception: "
                                         + (e.message || e) + "\nhttps://github.com/xeolabs/scenejs-grid/wiki/Modules";
@@ -235,8 +186,6 @@ define(["app/grid"],
                                 taskId: moduleId,
                                 message: "module load timed out"
                             });
-
-                            //                    abortLoads(moduleIds, moduleIdx + 1);
 
                             var err = "module load failed - " + moduleId + ": \nhttps://github.com/xeolabs/scenejs-grid/wiki/Modules";
 
@@ -282,22 +231,6 @@ define(["app/grid"],
                 } else {
 
                 }
-            }
-
-            function abortLoads(moduleIds, moduleIdx) {
-
-                if (moduleIdx >= moduleIds.length) {
-                    return;
-                }
-
-                var moduleId = moduleIds.shift();
-                //var modulePath = BASE_PATH + moduleId;
-
-                grid.fireEvent("task.aborted", {
-                    taskId: moduleId
-                });
-
-                abortLoads(moduleIds, moduleIdx + 1)
             }
 
 
