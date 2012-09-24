@@ -4,55 +4,27 @@ scenejs-grid
 SceneJS-Grid is a modular world engine built on top of (the as yet unreleased) [SceneJS v3.0](https://github.com/xeolabs/scenejs), the
 WebGL-based 3D rendering engine.
 
-Briefly, the grid consists of modules (sort of like game actor objects) which are orchestrated by scripts.
-Modules export command objects (called "actions") into the grid, through which they may be told to do things.
-They also fire events to notify of changes to their state. Pretty simple: actions in, events out.
+Grid in 30 Seconds
+------------------------
 
-Scripts are loaded when the grid boots up. Their job is to wire modules together, firing actions at them and responding
- to their events. You can also fire actions and subscribe to events via the grid shell, which is great for developing
- scripts with.
+Briefly, the grid consists of modules (like game engine "actor components") which are orchestrated by scripts.
+Modules create actions on the grid (the "stage"), through which they may be commanded to do stuff. They also fire events
+to notify of their state changes. Scripts are loaded when the grid boots up. Their job is to wire modules together,
+firing their actions and responding to their events. A human can also do all this via an interactive JavaSCript terminal
+that's built into the grid.
 
 A grid is served right out of this GitHub repository. That means that you can fork this repo, add modules
 and scripts, then when we pull in those contributions they instantly become part of this grid.
 
-It's super simple, scales up quickly, and is rather addictive!
-
-Modules
--------------------------
-
-The [content/components](https://github.com/xeolabs/scenejs-grid/blob/master/content/components) directory contains
-modules that implement the components of the grid, along with their dependencies, such as 3rd-party libraries and
-textures they require.
-
-Its sub-directories are:
-
- * [modules](https://github.com/xeolabs/scenejs-grid/blob/master/content/components/modules) - the modules, organised in a taxonomy of subdirectories
- * [lib](https://github.com/xeolabs/scenejs-grid/blob/master/content/components/lib) - 3rd-party libraries used by the modules
- * [textures](https://github.com/xeolabs/scenejs-grid/blob/master/content/components/textures) - texture files used by the modules
-
-Modules encapsulate all dependencies on the 3rd party libraries. Scripts only depend on modules, as well as the grid object
-itself. Think of modules as domain-specific entities that expose logical actions and events. For example a "frog" module might have
- "hop", "eat" and "croak" actions, and fire "moving", "hungry" and "croaked" events.
-
-Take a look at [modules/examples](https://github.com/xeolabs/scenejs-grid/blob/master/content/components/modules/examples)
-for example modules which you can base your own modules off.
-
-Scripts
--------------------------
-
-The [content/scripts](https://github.com/xeolabs/scenejs-grid/blob/master/content/scripts) directory contains
-top-level "game scripts" that orchestrate the modules.
-
-Scripts must not have dependencies on 3rd party libraries - their only dependencies should be on modules and the
-grid object. The modules should encapsulate dependencies on 3rd party libraries.
-
-Take a look at [scripts/examples](https://github.com/xeolabs/scenejs-grid/blob/master/content/scripts/examples)
-for example scripts which you can base your own scripts off.
+Read the [Grid Wiki](https://github.com/xeolabs/scenejs-grid/wiki) for more info.
 
 Examples
 -------------------------
 
-Try out some demo scripts:
+Got WebGL? Try the grid out some demo scripts:
 
  * [Teapot](http://htmlpreview.github.com/?https://raw.github.com/xeolabs/scenejs-grid/master/index.html#script=examples/teapot) - loads the boot script in [content/scripts/examples/teapot.js](https://github.com/xeolabs/scenejs-grid/blob/master/content/scripts/examples/teapot.js)
  * [Tanks](http://htmlpreview.github.com/?https://raw.github.com/xeolabs/scenejs-grid/master/index.html#script=examples/tanks) - loads the boot script in [content/scripts/examples/tanks.js](https://github.com/xeolabs/scenejs-grid/blob/master/content/scripts/examples/tanks.js)
+
+ **Note:** hit reload if loading fails - the [HTML Preview](http://htmlpreview.github.com/) service we're serving the repo through
+  seems to have problems serving the larger assets on the first visit, then works fine on later visits.
