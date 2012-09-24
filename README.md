@@ -10,7 +10,7 @@ Grid in 30 Seconds
 Briefly, the grid consists of modules (like game engine "actor components") which are orchestrated by scripts.
 Modules create actions on the grid (the "stage"), through which they may be commanded to do stuff. They also fire events
 to notify of their state changes. Scripts are loaded when the grid boots up. Their job is to wire modules together,
-firing their actions and responding to their events. A human can also do all this via an interactive JavaSCript terminal
+firing their actions and responding to their events. A human can also do all this via an interactive JavaScript terminal
 that's built into the grid.
 
 A grid is served right out of this GitHub repository. That means that you can fork this repo, add modules
