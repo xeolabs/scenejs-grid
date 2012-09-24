@@ -49,72 +49,77 @@
             color: #0080ff;
         }
 
-        #modal {
+        #about {
             font-family: Monospace;
             display: none;
-            background: #202020;
+            /*background: #202020;*/
+            background: url(images/xeolabs-logo-med.jpg) no-repeat 2px 6px #000000;
             border: solid gray 1px;
             width: 600px;
             height: 400px;
             padding: 20px;
+            padding-left: 260px;
+             padding-top: 20px;
         }
 
-        #modal h1 {
+        #about h1 {
 
             font-size: 32px;
             color: #ffffff;
         }
 
-        #modal h2 {
+        #about h2 {
             font-family: Monospace;
             font-size: 16px;
             color: #ffffff;
             padding-bottom: 20px;
         }
 
-        #modal p {
+        #about p {
             font-family: Monospace;
             font-size: 12px;
         }
 
-        #modal a {
+        #about a {
             color: #ccff66;
         }
 
-        #modal a:hover {
+        #about a:hover {
             color: #ffffff;
         }
 
-        #modal-boot-script {
+        #about-boot-script {
             color: #ffffff;
             padding-top: 10px;
         }
 
-        #modal-message {
+        #about-message {
             font-family: Monospace;
             font-size: 16px;
             color: #ffffff;
             padding-top: 10px;
         }
 
-        #modal-message h3.wait {
+        #about-message h3.wait {
             color: #ff6600;
         }
 
-        #modal-message h3.ready {
+        #about-message h3.ready {
             color: #66ff00;
         }
 
-        #modal ul {
+        #about ul {
             color: #ffffff;
+                 padding-left: 15px;
         }
 
-        #modal li {
+        #about li {
             color: #66ff00;
             padding-bottom: 7px;
+            padding-left: 0px;
         }
 
-        #modal .spinner {
+        #about .spinner {
             padding-top: 30px;
         }
 
@@ -140,7 +145,7 @@
             padding: 5px;
             padding-left: 30px;
             margin: 2px;
-            color: white; /*display: none; *//* For fadeIn */
+            color: white;
         }
     </style>
 </head>
@@ -162,26 +167,24 @@
 
 <canvas id="theCanvas"></canvas>
 
-<div id="modal">
+<div id="about">
     <h1>scenejs grid</h1>
 
     <h2>a modular world engine</h2>
 
     <ul>
-        <li>the grid is an extensible world engine that lives at <a
+        <li>an extensible world engine that lives at <a
                 href="https://github.com/xeolabs/scenejs-grid" target="_blank">GitHub</a></li>
 
-        <li>it's built on <a href="http://scenejs.org" target="_blank">SceneJS</a>, and is served straight out of the
-            repository
+        <li>written by <a href="http://xeolabs.com" target="_blank">xeolabs</a> on <a href="http://scenejs.org" target="_blank">SceneJS V3</a>
         </li>
 
-        <li>you can contribute to the grid by forking the repository and adding modules and scripts - then we'll merge
-            them and they will be available here
+        <li>served straight out of the repo - contribute by forking and adding modules
         </li>
-        <li>type '~' to open a command shell to speak to the grid
+        <li>type '~' to open a command terminal to speak to the grid
         </li>
-        <li>read the documentation <a
-                href="https://github.com/xeolabs/scenejs-grid" target="_blank">here</a>
+        <li>read more on the <a
+                href="https://github.com/xeolabs/scenejs-grid/wiki" target="_blank">wiki</a>
         </li>
     </ul>
     <!--<ul>-->
@@ -190,16 +193,16 @@
     <!--<li>type '~' to open console</li>-->
     <!--</ul>-->
 
-    <div id="modal-boot-script">
-        <p>using boot script: <span id="modal-boot-script-name"></span></p>
+    <div id="about-boot-script">
+        <p>boot script: <span id="about-boot-script-name"></span></p>
     </div>
 
-    <div id="modal-message">
+    <div id="about-message">
         <h3 class="wait">loading the grid, just a moment..</h3>
     </div>
 
 
-    <!--<div id="modal-wait-or-go">-->
+    <!--<div id="about-wait-or-go">-->
     <!--<img class="spinner" src="images/spinner.gif" alt="">-->
     <!--</div>-->
 </div>
@@ -319,25 +322,26 @@ $.extend_if_has = function(desc, source, array) {
 jQuery(document).ready(
         function($) {
 
-            //            $("body").click(false);
+            $("body").click(false);
 
-            //            $("#modal").bPopup({
-            //                //  modalClose: false
-            //            });
+            $("#about").bPopup({
+                //  modalClose: false
+            });
 
             initEngine(
                     function(grid) {
 
                         initTerminal(grid, $);
 
-                        //                        $("#modal-message").html("<h3 class='ready'>ready - click to start</h3>");
-                        //
-                        //                        $("body").unbind('click');
-                        //
-                        //                        $("#modal").click(
-                        //                                function() {
-                        //                                    $("#modal").bPopup().close();
-                        //                                });
+                        $("#about-message").html("<h3 class='ready'>ready - click to start</h3>");
+                        $("#about-message").html("<h3 class='ready'>ready</h3>");
+
+                        $("body").unbind('click');
+
+                        $("#about").click(
+                                function() {
+                                    $("#about").bPopup().close();
+                                });
                     });
 
         });
@@ -359,9 +363,9 @@ function initEngine(ok) {
      */
     if (bootScriptName) {
         bootScriptPath = "content/scripts/" + bootScriptName + ".js";
-        $("#modal-boot-script-name").html("<a href='" + bootScriptPath + "' target='_blank'>" + bootScriptName + ".js</a>");
+        $("#about-boot-script-name").html("<a href='" + bootScriptPath + "' target='_blank'>" + bootScriptName + ".js</a>");
     } else {
-        $("#modal-boot-script-name").html("(no script selected)");
+        $("#about-boot-script-name").html("(no script selected)");
     }
 
     /* Configure RequireJS
@@ -465,20 +469,6 @@ function initTerminal(grid, $) {
                                 }
                             });
 
-                    //                                        requirejs.onError = function (err) {
-                    //
-                    //                                            if (err.requireType === 'timeout') {
-                    //
-                    //                                                var msg = "load timeout: " + err.requireModules + "\nhttps://github.com/xeolabs/scenejs-grid/wiki/Module-load-timeout";
-                    //
-                    //                                                terminal.echo(msg).css("color", "red");
-                    //
-                    //                                            } else {
-                    //                                                terminal.echo("unhandled exception thrown by Require.JS:").css("color", "red");
-                    //                                                terminal.echo(JSON.stringify(err, null, 4)).css("color", "red");
-                    //                                            }
-                    //                                        };
-
                     dataEcho = true;
                 }
 
@@ -518,7 +508,7 @@ function initTaskMonitor(grid) {
 
                 monitor.append(taskElement);
 
-                //  taskElement.fadeIn(1000);
+                taskElement.fadeIn("slow");
             });
 
     grid.onEvent("task.finished", taskFinished);
@@ -526,13 +516,14 @@ function initTaskMonitor(grid) {
     grid.onEvent("task.aborted", taskAborted);
 
     function taskFinished(params) {
-
         var taskId = params.taskId;
         var task = tasks[taskId];
-
         if (task) {
+            task.element.css("color", "green");
+            task.element.css('background-image', 'url(images/tick-icon.png)');
 
             delete tasks[taskId];
+
 
             setTimeout(
                     function() {
@@ -545,6 +536,7 @@ function initTaskMonitor(grid) {
 
                         setTimeout(
                                 function() {
+
                                     task.element.remove();
                                 }, 2000);
 
@@ -552,6 +544,7 @@ function initTaskMonitor(grid) {
                     }, 2000);
         }
     }
+
 
     function taskFailed(params) {
         var taskId = params.taskId;

@@ -1865,9 +1865,9 @@ SceneJS_Engine.prototype._tryCompile = function() {
             || this._sceneBranchesDirty // One or more branches in scene graph need (re)compilation
             || this.sceneDirty) { // Whole scene needs recompilation
 
-        if (this._sceneBranchesDirty || this.sceneDirty) { // Need scene graph compilation
+        this._doDestroyNodes(); // Garbage collect destroyed nodes - node destructions set imageDirty true
 
-            this._doDestroyNodes(); // Garbage collect destroyed nodes - node destructions schedule scene compilation
+        if (this._sceneBranchesDirty || this.sceneDirty) { // Need scene graph compilation
 
             SceneJS_events.fireEvent(SceneJS_events.SCENE_COMPILING, {  // Notify compilation support start
                 engine: this                                            // Compilation support modules get ready
@@ -5449,7 +5449,7 @@ SceneJS.Node.prototype._construct = function(engine, core, cfg) {
     this.parent = null;
 
     /**
-      * Child nodes
+     * Child nodes
      * @type SceneJS.Node[]
      */
     this.nodes = [];
@@ -6458,12 +6458,40 @@ SceneJS.Node.prototype.destroy = function() {
 
     if (!this.destroyed) {
 
-        this.destroyed = true;
+        if (this.parent) {
 
-        this._engine.destroyNode(this); // Release node object
+            /* Remove from parent's child node list
+             */
+            for (var i = 0; i < this.nodes.length; i++) {
+                if (this.parent.nodes[i].id === this.id) {
+                    this.parent.nodes.splice(i, 1);
+                    break;
+                }
+            }
+        }
+
+        /* Recusrsively destroy child nodes without
+         * bothering to remove them from their parents
+         */
+        this._destroyTree();
+
+        /* Need object list recompilation on display
+         */
+        this._engine.display.objectListDirty = true;
     }
 
     return this;
+};
+
+SceneJS.Node.prototype._destroyTree = function() {
+
+    this.destroyed = true;
+
+    this._engine.destroyNode(this); // Release node object
+
+    for (var i = 0, len = this.nodes.length; i < len; i++) {
+        this.nodes[i]._destroyTree();
+    }
 };
 
 /**
@@ -7928,7 +7956,7 @@ SceneJS_NodeFactory.prototype.putNode = function(node) {
 
     SceneJS.Geometry.prototype._destroy = function() {
 
-        this._engine._display.removeObject(this.id);
+        this._engine.display.removeObject(this.id);
 
         /* Destroy core if no other references
          */
@@ -13554,7 +13582,7 @@ SceneJS_ProgramFactory.prototype.putProgram = function(program) {
 
     if (--program.useCount <= 0) {
 
-        program.render.destroy();
+        program.draw.destroy();
         program.pick.destroy();
 
         SceneJS_ProgramSourceFactory.putSource(program.hash);
