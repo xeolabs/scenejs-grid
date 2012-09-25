@@ -18,7 +18,7 @@ grid.send({
                 action: "module.load",
                 modules: [
                     "objects/vehicles/tank/tank",
-                    "objects/skies/sky",
+                    "objects/skies/milkyway",
                     "objects/floors/grid",
                     "input/mouse",
                     "camera/camera"
