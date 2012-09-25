@@ -1549,18 +1549,18 @@ var SceneJS_Engine = function(json, options) {
     this.destroyed = false;
 
     /**
-     * The engine's scene graph
-     * @type SceneJS.Scene
-     */
-    this.scene = this.createNode(json); // Scene back-references this engine, so is defined after other engine members
-
-    /**
      * The current scene graph status
      */
     this.sceneStatus = {
         nodes: {},          // Status for each node
         numLoading: 0       // Number of loads currently in progress
     };
+
+    /**
+     * The engine's scene graph
+     * @type SceneJS.Scene
+     */
+    this.scene = this.createNode(json); // Scene back-references this engine, so is defined after other engine members
 
     var self = this;
 
@@ -12032,7 +12032,10 @@ SceneJS_Display.prototype.buildObject = function(objectId) {
 
     ]).join(";");
 
-    if (hash != object.hash) {      // Get new program for object if object's hash mismatches
+    if (!object.program || hash != object.hash) {
+
+        /* Get new program for object if no program or hash mismatch
+         */
 
         if (object.program) {
             this._programFactory.putProgram(object.program);
@@ -12052,7 +12055,7 @@ SceneJS_Display.prototype.buildObject = function(objectId) {
     this._setChunk(object, 4, this.flags);
     this._setChunk(object, 5, this.shader);
     this._setChunk(object, 6, this.shaderParams);
-  //  this._setChunk(object, 7, this.renderer, true);
+    //  this._setChunk(object, 7, this.renderer, true);
     this._setChunk(object, 8, this.name);
     this._setChunk(object, 9, this.lights);
     this._setChunk(object, 10, this.material);
@@ -12122,6 +12125,9 @@ SceneJS_Display.prototype.removeObject = function(objectId) {
     }
 
     this._programFactory.putProgram(object.program);
+
+    object.program = null;
+    object.hash = null;
 
     this._objectFactory.putObject(object);
 
@@ -12355,7 +12361,7 @@ SceneJS_Display.prototype._buildDrawList = function() {
 
 SceneJS_Display.prototype.pick = function(params) {
 
- //   return;
+    //   return;
 
     var canvas = this._canvas.canvas;
 
