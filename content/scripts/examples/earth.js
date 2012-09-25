@@ -18,7 +18,8 @@ grid.send({
                 modules: [
                     "camera/camera",
                     "input/mouse",
-                    "objects/planets/earth"
+                    "objects/planets/earth",
+                    "objects/skies/milkyway"
                 ]
             },
                     function() {
