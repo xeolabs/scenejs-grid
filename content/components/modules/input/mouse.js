@@ -18,6 +18,34 @@ define(function() {
         _grid.fireEvent("mouse.up");
     }
 
+    function mouseWheel(event) {
+
+        var delta = 0;
+
+        if (!event) {
+            event = window.event;
+        }
+
+        if (event.wheelDelta) {
+
+            delta = event.wheelDelta / 120;
+
+            if (window.opera) {
+                delta = -delta;
+            }
+
+        } else if (event.detail) {
+            delta = -event.detail / 3;
+        }
+
+        if (event.preventDefault)
+            event.preventDefault();
+
+        event.returnValue = false;
+
+        _grid.fireEvent("mouse.wheel", { delta: delta });
+    }
+
     return {
 
         /**
@@ -35,7 +63,7 @@ define(function() {
          * Within this method, the module would typically create on the grid various actions
          * that it handles, as well as declare what events it fires.
          *
-       * @param {Grid} grid The grid
+         * @param {Grid} grid The grid
          * @param {Object} resources Resources shared among all modules
          * @param {JSON} configs Module configs
          */
@@ -48,10 +76,12 @@ define(function() {
             grid.createEvent("mouse.down");
             grid.createEvent("mouse.move");
             grid.createEvent("mouse.up");
+            grid.createEvent("mouse.wheel");
 
             canvas.addEventListener('mousedown', mouseDown, true);
             canvas.addEventListener('mousemove', mouseMove, true);
             canvas.addEventListener('mouseup', mouseUp, true);
+            canvas.addEventListener('mousewheel', mouseWheel, true);
         },
 
         /**
@@ -65,10 +95,12 @@ define(function() {
             grid.deleteEvent("mouse.down");
             grid.deleteEvent("mouse.move");
             grid.deleteEvent("mouse.up");
+            grid.deleteEvent("mouse.wheel");
 
             canvas.removeEventListener('mousedown', mouseDown, true);
             canvas.removeEventListener('mousemove', mouseMove, true);
             canvas.removeEventListener('mouseup', mouseUp, true);
+            canvas.removeEventListener('mousewheel', mouseWheel, true);
         }
     };
 });
