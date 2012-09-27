@@ -105,9 +105,11 @@ grid.send({
 
                 /*-------------------------------------------------------------------------
                  * Ground plane
+                 *
+                 * Using the "objects/floors/grid" module to render the ground plane
                  *-----------------------------------------------------------------------*/
 
-                /* Create ground plane object
+                /* Create ground plane physics body
                  */
                 grid.send({
                     action:"physics.create",
@@ -120,24 +122,6 @@ grid.send({
                         y:.5
                     },
                     friction:10
-                });
-
-                /* Create ground plane physics body
-                 */
-                grid.send({
-                    action:"prims.create",
-                    primId:"plane",
-                    type:"box",
-                    pos:{
-                        x:0,
-                        y:5,
-                        z:0
-                    },
-                    scale:{
-                        x:10,
-                        y:0.01,
-                        z:10
-                    }
                 });
 
 
