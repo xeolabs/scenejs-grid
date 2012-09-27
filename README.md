@@ -23,9 +23,9 @@ Examples
 
 Got WebGL? Try the grid out some demo scripts:
 
- * [Teapot](http://htmlpreview.github.com/?https://raw.github.com/xeolabs/scenejs-grid/master/index.html#script=examples/teapot) - loads the boot script in [content/scripts/examples/teapot.js](https://github.com/xeolabs/scenejs-grid/blob/master/content/scripts/examples/teapot.js)
- * [Tanks](http://htmlpreview.github.com/?https://raw.github.com/xeolabs/scenejs-grid/master/index.html#script=examples/tanks) - loads the boot script in [content/scripts/examples/tanks.js](https://github.com/xeolabs/scenejs-grid/blob/master/content/scripts/examples/tanks.js)
- * [Physics](http://htmlpreview.github.com/?https://raw.github.com/xeolabs/scenejs-grid/master/index.html#script=examples/physics/jiglibjs) - loads the boot script in [content/scripts/examples/physics/jiglibjs.js](https://github.com/xeolabs/scenejs-grid/blob/master/content/scripts/examples/physics/jiglibjs.js)
+ * [Teapot](http://htmlpreview.github.com/?https://raw.github.com/xeolabs/scenejs-grid/master/index.html#script=examples/teapot&splash=false) - loads the boot script in [content/scripts/examples/teapot.js](https://github.com/xeolabs/scenejs-grid/blob/master/content/scripts/examples/teapot.js)
+ * [Tanks](http://htmlpreview.github.com/?https://raw.github.com/xeolabs/scenejs-grid/master/index.html#script=examples/tanks&splash=false) - loads the boot script in [content/scripts/examples/tanks.js](https://github.com/xeolabs/scenejs-grid/blob/master/content/scripts/examples/tanks.js)
+ * [Physics](http://htmlpreview.github.com/?https://raw.github.com/xeolabs/scenejs-grid/master/index.html#script=examples/physics/jiglibjs&splash=false) - loads the boot script in [content/scripts/examples/physics/jiglibjs.js](https://github.com/xeolabs/scenejs-grid/blob/master/content/scripts/examples/physics/jiglibjs.js)
 
  **Note:** hit reload if loading fails - the [HTML Preview](http://htmlpreview.github.com/) service we're serving the repo through
   seems to have problems serving the larger assets on the first visit, then works fine on later visits.
