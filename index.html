@@ -30,7 +30,7 @@
         }
 
         #footer {
-        /*position: relative;*/
+            /*position: relative;*/
             width: 100%;
             height: 20px;
             color: #ffffff;
@@ -146,13 +146,26 @@
             margin: 2px;
             color: white;
         }
+
+            /* tooltip styling. by default the element to be styled is .tooltip  */
+        .tooltip {
+            display: none;
+            /*background: transparent url(/media/img/tooltip/black_arrow.png);*/
+            font-size: 12px;
+            height: 70px;
+            width: 160px;
+            padding: 25px;
+            color: #eee;
+            z-index: 10000;
+        }
     </style>
 </head>
 <body>
 
-<a href="https://github.com/xeolabs/scenejs-grid" target="_other"><img style="position: absolute; top: 0; left: 0; border: 0; opacity: 0.5;"
-                                      src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"
-                                      alt="Fork me on GitHub"></a>
+<a href="https://github.com/xeolabs/scenejs-grid" target="_other"><img
+        style="position: absolute; top: 0; left: 0; border: 0; opacity: 0.5;"
+        src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"
+        alt="Fork me on GitHub"></a>
 
 <!--<a href="https://github.com/xeolabs/scenejs-grid" target="_blank"><img-->
 <!--style="position: absolute; top: 0; right: 0; border: 0;"-->
@@ -220,38 +233,40 @@
 <script src="js/lib/jquery/jquery.mousewheel-min.js"></script>
 <script src="js/lib/jquery/jquery.terminal-min.js"></script>
 <script src="js/lib/jquery/jquery.bpopup-0.7.0.min.js"></script>
+<script src="js/lib/jquery/jquery.tools.min.js"></script>
 
 
 <!--[if IE]>
 <style>
-body {
-    margin: 0;
-    padding: 0;
-}
-.tilda {
-    position: absolute;
-}
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    .tilda {
+        position: absolute;
+    }
 </style>
 <script>
-jQuery(document).ready(function($) {
-   $(window).scroll(function() {
-      $('.tilda').each(function() {
-         $(this).css({top: $('body').attr('scrollTop')});
-      });
-   });
-});
+    jQuery(document).ready(function ($) {
+        $(window).scroll(function () {
+            $('.tilda').each(function () {
+                $(this).css({top:$('body').attr('scrollTop')});
+            });
+        });
+    });
 </script>
 <![endif]-->
 
 <script>
 
-String.prototype.strip = function(char) {
+String.prototype.strip = function (char) {
     return this.replace(new RegExp("^" + char + "*"), '').
             replace(new RegExp(char + "*$"), '');
 };
 
 
-$.extend_if_has = function(desc, source, array) {
+$.extend_if_has = function (desc, source, array) {
     for (var i = array.length; i--;) {
         if (typeof source[array[i]] != 'undefined') {
             desc[array[i]] = source[array[i]];
@@ -261,8 +276,8 @@ $.extend_if_has = function(desc, source, array) {
 };
 
 
-(function($) {
-    $.fn.tilda = function(eval, options) {
+(function ($) {
+    $.fn.tilda = function (eval, options) {
 
         if ($('body').data('tilda')) {
             return $('body').data('tilda').terminal;
@@ -272,18 +287,18 @@ $.extend_if_has = function(desc, source, array) {
 
         options = options || {};
 
-        eval = eval || function(command, term) {
+        eval = eval || function (command, term) {
             term.echo("you don't set eval for tilda");
         };
 
         var settings = {
-            prompt: 'ready> ',
-            name: 'SceneJS Grid',
-            height: "90%",
-            enabled: false,
-            greetings: 'SceneJS Grid Terminal V0.1.0.0\n' +
-                       '(C) 2012 Lindsay Kay\n' +
-                       'lindsay.kay@xeolabs.com\n\n'
+            prompt:'ready> ',
+            name:'SceneJS Grid',
+            height:"90%",
+            enabled:false,
+            greetings:'SceneJS Grid Terminal V0.1.0.0\n' +
+                    '(C) 2012 Lindsay Kay\n' +
+                    'lindsay.kay@xeolabs.com\n\n'
         };
 
         if (options) {
@@ -302,13 +317,13 @@ $.extend_if_has = function(desc, source, array) {
         var focus = false;
 
         $(document.documentElement).keypress(
-                function(e) {
+                function (e) {
                     if (e.which == 96) {
                         self.slideToggle('fast');
                         self.terminal.set_command('');
                         self.terminal.focus(focus = !focus);
                         self.terminal.attr({
-                            scrollTop: self.terminal.attr("scrollHeight")
+                            scrollTop:self.terminal.attr("scrollHeight")
                         });
                     }
                 });
@@ -324,26 +339,49 @@ $.extend_if_has = function(desc, source, array) {
 //--------------------------------------------------------------------------
 
 jQuery(document).ready(
-        function($) {
+        function ($) {
 
-            $("body").click(false);
+            /* Get selected boot script name and path off URL hash. We use the hash so that the full URL to the
+             * engine instance can be used a parameter for web service like this:
+             * http://htmlpreview.github.com/?https://raw.github.com/xeolabs/scenejs-grid/master/index.html#script=demos/teapot
+             */
+            var urlHashParams = getURLHashParams();
 
-            $("#about").bPopup({
-                //  modalClose: false
-            });
+            var script = urlHashParams["script"];
+            var splash = urlHashParams["splash"];
 
-            initEngine(
-                    function(grid) {
+            if (splash == undefined) {
+                splash = true;
+            } else {
+                splash = (splash == "true");
+            }
+
+            /* Tell user which script we're booting off, if any
+             */
+            if (script) {
+                var bootScriptPath = "content/scripts/" + script + ".js";
+                $("#about-boot-script-name").html("<a href='" + bootScriptPath + "' target='_blank'>" + script + ".js</a>");
+            } else {
+                $("#about-boot-script-name").html("(no script selected)");
+            }
+
+            if (splash) {
+                $("#about").bPopup({
+                    //  modalClose: false
+                });
+            }
+
+            initEngine({
+                        script:script
+                    },
+                    function (grid) {
 
                         initTerminal(grid, $);
 
                         $("#about-message").html("<h3 class='ready'>ready - click to start</h3>");
-                        //                        $("#about-message").html("<h3 class='ready'>ready</h3>");
-
-                        $("body").unbind('click');
 
                         $("#about").click(
-                                function() {
+                                function () {
                                     $("#about").bPopup().close();
                                 });
                     });
@@ -353,24 +391,8 @@ jQuery(document).ready(
 /**
  * Bootstraps the grid
  */
-function initEngine(ok) {
+function initEngine(params, ok) {
 
-    /* Get selected boot script name and path off URL hash. We use the hash so that the full URL to the
-     * engine instance can be used a parameter for web service like this:
-     * http://htmlpreview.github.com/?https://raw.github.com/xeolabs/scenejs-grid/master/index.html#script=demos/teapot
-     */
-    var urlHashParams = getURLHashParams();
-    var bootScriptName = urlHashParams["script"];
-    var bootScriptPath;
-
-    /* Tell user which script we're booting off, if any
-     */
-    if (bootScriptName) {
-        bootScriptPath = "content/scripts/" + bootScriptName + ".js";
-        $("#about-boot-script-name").html("<a href='" + bootScriptPath + "' target='_blank'>" + bootScriptName + ".js</a>");
-    } else {
-        $("#about-boot-script-name").html("(no script selected)");
-    }
 
     /* Configure RequireJS
      */
@@ -379,15 +401,15 @@ function initEngine(ok) {
         // enforceDefine: true,
 
         //By default load any module IDs from js/lib
-        baseUrl: 'js/lib',
+        baseUrl:'js/lib',
 
         //except, if the module ID starts with "app",
         //load it from the js/app directory. paths
         //config is relative to the baseUrl, and
         //never includes a ".js" extension since
         //the paths config could be for a directory.
-        paths: {
-            app: '../app'
+        paths:{
+            app:'../app'
         }
     });
 
@@ -398,14 +420,14 @@ function initEngine(ok) {
     require([ // SceneJS core
         'scenejs/scenejs'
     ],
-            function() {
+            function () {
 
                 require([  // SceneJS plugins, which depend on SceneJS core
-                    'scenejs/scenejs.box',  // TODO: these are loaded even if not needed - should be loaded on demand
+                    'scenejs/scenejs.box', // TODO: these are loaded even if not needed - should be loaded on demand
                     'scenejs/scenejs.sphere',
                     'scenejs/scenejs.teapot'
                 ],
-                        function() {
+                        function () {
 
                             require([ // The grid engine
                                 'app/grid',
@@ -421,10 +443,10 @@ function initEngine(ok) {
 
                                         /* Load boot script
                                          */
-                                        if (bootScriptName) {
+                                        if (params.script) {
 
-                                            require(["../../content/scripts/" + bootScriptName],
-                                                    function() {
+                                            require(["../../content/scripts/" + params.script],
+                                                    function () {
                                                         ok(grid); // Booted off script
                                                     });
                                         } else {
@@ -441,7 +463,7 @@ function bindGridErrors(grid) {
 
     grid.onEvent(
             "error",
-            function(error) {
+            function (error) {
                 //alert(JSON.stringify(error));
             });
 }
@@ -455,7 +477,7 @@ function initTerminal(grid, $) {
     var dataEcho = false;
 
     $('#tilda').tilda(
-            function(command, terminal) {
+            function (command, terminal) {
 
                 if (!dataEcho) {
 
@@ -496,7 +518,7 @@ function initTaskMonitor(grid) {
     var tasks = {};
 
     grid.onEvent("task.started",
-            function(params) {
+            function (params) {
 
                 var taskId = params.taskId;
                 var description = params.description;
@@ -506,11 +528,13 @@ function initTaskMonitor(grid) {
                 var taskElement = $("<p id='" + elementId + "'>" + description + "</p>");
 
                 tasks[taskId] = {
-                    description: description,
-                    element: taskElement
+                    description:description,
+                    element:taskElement
                 };
 
                 monitor.append(taskElement);
+
+                //   $(taskElement).tooltip();
 
                 taskElement.fadeIn("slow");
             });
@@ -530,7 +554,7 @@ function initTaskMonitor(grid) {
 
 
             setTimeout(
-                    function() {
+                    function () {
 
                         task.element.css("color", "green");
                         task.element.css('background-image', 'url(images/tick-icon.png)');
@@ -539,7 +563,7 @@ function initTaskMonitor(grid) {
                         //                                function() {
 
                         setTimeout(
-                                function() {
+                                function () {
 
                                     task.element.remove();
                                 }, 2000);
