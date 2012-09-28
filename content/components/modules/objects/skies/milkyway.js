@@ -1,4 +1,6 @@
-define(["../../../lib/scenejs.sphere"],
+define([
+    "../../../lib/scenejs.sphere"
+],
 
     function () {
 

@@ -3,7 +3,7 @@
  *
  */
 define([
-    "../../../lib/scenejs.teapot.js"
+    "../../../lib/scenejs.teapot"
 ],
 
     function () {
