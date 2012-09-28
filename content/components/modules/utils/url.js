@@ -1,100 +1,102 @@
 /**
  * Engine module which provides actions for accessing the URL the grid is loaded on
  */
-define(function() {
+define(
 
-    return {
+    function () {
 
-        /**
-         * Brief description of the module
-         */
-        description: "Engine URL query",
+        return {
 
-        /**
-         * Called by the grid to initialise the module.
-         *
-         * Via this method, the grid injects itself into the module, along with a map of grid
-         * resources that the module may use. The resources contain things like the HTML canvas
-         * and certain nodes in the scene graph that the module may graft additional nodes onto.
-         *
-         * Within this method, the module would typically create on the grid various actions
-         * that it handles, as well as declare what events it fires.
-         *
-         * @param {Grid} grid The grid
-         * @param {Object} resources Resources shared among all modules
-         * @param {JSON} configs Module configs
-         */
-        init: function(grid, resources, configs) {
-
-            /* Get the URL parameters
-             * http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values
+            /**
+             * Brief description of the module
              */
-            var qs = (function(a) {
+            description:"Queries URL parameters",
 
-                if (a == "") {
-                    return {};
-                }
+            /**
+             * Called by the grid to initialise the module.
+             *
+             * Via this method, the grid injects itself into the module, along with a map of grid
+             * resources that the module may use. The resources contain things like the HTML canvas
+             * and certain nodes in the scene graph that the module may graft additional nodes onto.
+             *
+             * Within this method, the module would typically create on the grid various actions
+             * that it handles, as well as declare what events it fires.
+             *
+             * @param {Grid} grid The grid
+             * @param {Object} context Resources shared among all modules
+             * @param {JSON} configs Module configs
+             */
+            load:function (grid, context, configs) {
 
-                var b = {};
-                var p;
+                /* Get the URL parameters
+                 * http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values
+                 */
+                var qs = (function (a) {
 
-                for (var i = 0; i < a.length; ++i) {
-
-                    p = a[i].split('=');
-
-                    if (p.length != 2) {
-                        continue;
+                    if (a == "") {
+                        return {};
                     }
 
-                    b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
-                }
+                    var b = {};
+                    var p;
 
-                return b;
+                    for (var i = 0; i < a.length; ++i) {
 
-            })(window.location.search.substr(1).split('&'));
+                        p = a[i].split('=');
 
-            /* Create action to query the URL parameters
-             */
-            grid.createAction({
-                action: "url.getParams",
-                fn: function(params, ok) {
-                    ok(qs);
-                }
-            });
+                        if (p.length != 2) {
+                            continue;
+                        }
 
-            /* Create action to query the URL parameters after the hash
-             * http://stackoverflow.com/questions/4197591/parsing-url-hash-fragment-identifier-with-javascript
-             */
-            grid.createAction({
-                action: "url.getHashParams",
-                fn: function(params, ok) {
-
-                    var hashParams = {};
-
-                    var e;
-                    var a = /\+/g;  // Regex for replacing addition symbol with a space
-                    var r = /([^&;=]+)=?([^&;]*)/g;
-                    var d = function (s) {
-                        return decodeURIComponent(s.replace(a, " "));
-                    };
-                    var q = window.location.hash.substring(1);
-
-                    while (e = r.exec(q)) {
-                        hashParams[d(e[1])] = d(e[2]);
+                        b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
                     }
 
-                    ok(hashParams);
-                }
-            });
-        },
+                    return b;
 
-        /**
-         * Destroys this module, deleting anything that it
-         * previously created on the grid via its #init method.
-         */
-        destroy: function(grid, resources) {
+                })(window.location.search.substr(1).split('&'));
 
-            grid.deleteAction("url.get");
-        }
-    };
-});
+                /* Create action to query the URL parameters
+                 */
+                grid.createAction({
+                    action:"url.getParams",
+                    fn:function (params, ok) {
+                        ok(qs);
+                    }
+                });
+
+                /* Create action to query the URL parameters after the hash
+                 * http://stackoverflow.com/questions/4197591/parsing-url-hash-fragment-identifier-with-javascript
+                 */
+                grid.createAction({
+                    action:"url.getHashParams",
+                    fn:function (params, ok) {
+
+                        var hashParams = {};
+
+                        var e;
+                        var a = /\+/g;  // Regex for replacing addition symbol with a space
+                        var r = /([^&;=]+)=?([^&;]*)/g;
+                        var d = function (s) {
+                            return decodeURIComponent(s.replace(a, " "));
+                        };
+                        var q = window.location.hash.substring(1);
+
+                        while (e = r.exec(q)) {
+                            hashParams[d(e[1])] = d(e[2]);
+                        }
+
+                        ok(hashParams);
+                    }
+                });
+            },
+
+            /**
+             * Destroys this module, deleting anything that it
+             * previously created on the grid via its #load method.
+             */
+            unload:function (grid, context) {
+
+                grid.deleteAction("url.get");
+            }
+        };
+    });

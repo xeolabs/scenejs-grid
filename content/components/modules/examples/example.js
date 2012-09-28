@@ -22,10 +22,10 @@ define(function() {
          * that it handles, as well as declare what events it fires.
          *
          * @param {Grid} grid The grid
-         * @param {Object} resources Resources shared among all modules
+         * @param {Object} context Resources shared among all modules
          * @param {JSON} configs Module configs
          */
-        init: function(grid, resources, configs) {
+        load: function(grid, context, configs) {
 
             /* Use any configurations provided for this module (specified on the
              * "module.load" action invokation that loaded it):
@@ -34,7 +34,7 @@ define(function() {
 
             /* Read global properies created by other modules:
              */
-            var exampleResource = resources.exampleResource;
+            var exampleResource = context.exampleResource;
 
             /* Declare events this module will fire:
              */
@@ -94,21 +94,21 @@ define(function() {
 
             /* Export global properties for use by other modules:
              */
-            resources.newExampleResource = "someValue";
+            context.newExampleResource = "someValue";
         },
 
         /**
          * Destroys this module, deleting anything that it
-         * previously created on the grid via its #init method.
+         * previously created on the grid via its #load method.
          */
-        destroy: function(grid, resources) {
+        unload: function(grid, context) {
 
             /* Undeclare any events we declared:
              */
 
             grid.deleteEvent("example.myevent");
 
-            /* Destroy any actions we created:
+            /* unload any actions we created:
              */
 
             grid.deleteAction("example.myaction");

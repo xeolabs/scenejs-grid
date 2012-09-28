@@ -14,7 +14,7 @@ define(["../../../lib/jiglib.all.min"],
 
             description:"Physics system using JigLibJS",
 
-            init:function (grid, resources, configs) {
+            load:function (grid, context, configs) {
 
                 _grid = grid;
 
@@ -184,7 +184,7 @@ define(["../../../lib/jiglib.all.min"],
                     });
             },
 
-            destroy:function (grid, resources) {
+            unload:function (grid, context) {
 
                 grid.deleteAction("physics.create");
 

@@ -19,7 +19,7 @@ define(["map"], // Map with automatic IDs
 
                 /* Pool of reusable IDs for event subscription handles
                  */
-                this._handlePool = new Map();
+                this._handlePool = map.createMap();
 
                 /* Actions supported by this grid.
                  * Actions are defined with #defineAction and executed with #send.

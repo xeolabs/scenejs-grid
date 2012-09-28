@@ -79,7 +79,7 @@ define(["app/grid"],
                             if (!module) {
 
                                 var err = "module failed to load: " + moduleId
-                                        + ".init \nhttps://github.com/xeolabs/scenejs-grid/wiki/Modules";
+                                        + ".load \nhttps://github.com/xeolabs/scenejs-grid/wiki/Modules";
 
                                 grid.fireEvent("task.failed", {
                                     taskId: moduleId,
@@ -96,12 +96,12 @@ define(["app/grid"],
                             }
 
 
-                            /* Check for init method
+                            /* Check for load method
                              */
-                            if (!module.init) {
+                            if (!module.load) {
 
                                 var err = "module method missing: " + moduleId
-                                        + ".init \nhttps://github.com/xeolabs/scenejs-grid/wiki/Modules";
+                                        + ".load \nhttps://github.com/xeolabs/scenejs-grid/wiki/Modules";
 
                                 grid.fireEvent("task.failed", {
                                     taskId: moduleId,
@@ -117,12 +117,12 @@ define(["app/grid"],
                                 return;
                             }
 
-                            /* Check for destroy method
+                            /* Check for unload method
                              */
-                            if (!module.destroy) {
+                            if (!module.unload) {
 
                                 var err = "module method missing: "
-                                        + moduleId + ".destroy \nhttps://github.com/xeolabs/scenejs-grid/wiki/Modules";
+                                        + moduleId + ".unload \nhttps://github.com/xeolabs/scenejs-grid/wiki/Modules";
 
                                 grid.fireEvent("task.failed", {
                                     taskId: moduleId,
@@ -138,15 +138,15 @@ define(["app/grid"],
                                 return;
                             }
 
-                            /* Initialise
+                            /* initialise
                              */
                             try {
 
-                                module.init(grid, resources, moduleConfigs); // Initialise the module
+                                module.load(grid, resources, moduleConfigs); // Initialise the module
 
                             } catch (e) {
 
-                                var err = "module init failed - " + moduleId + ".init threw an exception: "
+                                var err = "module load failed - " + moduleId + ".load threw an exception: "
                                         + (e.message || e) + "\nhttps://github.com/xeolabs/scenejs-grid/wiki/Modules";
 
                                 grid.fireEvent("task.failed", {
@@ -271,13 +271,13 @@ define(["app/grid"],
                             delete loadedModulesInfo[moduleId];
                             delete loadedModules[moduleId];
 
-                            try { // TODO: Support asynch module destroy?
+                            try { // TODO: Support asynch module unload?
 
-                                module.destroy(grid, resources);
+                                module.unload(grid, resources);
 
                             } catch (e) {
 
-                                var errorMsg = "module unload failed - " + moduleId + ".destroy threw an exception: "
+                                var errorMsg = "module unload failed - " + moduleId + ".unload threw an exception: "
                                         + (e.message || e) + "\nhttps://github.com/xeolabs/scenejs-grid/wiki/Modules";
 
                                 grid.fireEvent("error", {

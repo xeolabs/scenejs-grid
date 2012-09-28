@@ -145,6 +145,7 @@
             padding-left: 30px;
             margin: 2px;
             color: white;
+            width: auto;
         }
 
             /* tooltip styling. by default the element to be styled is .tooltip  */
@@ -233,7 +234,7 @@
 <script src="js/lib/jquery/jquery.mousewheel-min.js"></script>
 <script src="js/lib/jquery/jquery.terminal-min.js"></script>
 <script src="js/lib/jquery/jquery.bpopup-0.7.0.min.js"></script>
-<script src="js/lib/jquery/jquery.tools.min.js"></script>
+
 
 
 <!--[if IE]>
@@ -422,37 +423,29 @@ function initEngine(params, ok) {
     ],
             function () {
 
-                require([  // SceneJS plugins, which depend on SceneJS core
-                    'scenejs/scenejs.box', // TODO: these are loaded even if not needed - should be loaded on demand
-                    'scenejs/scenejs.sphere',
-                    'scenejs/scenejs.teapot'
+                require([ // The grid engine
+                    'app/grid',
+                    'app/modules'
                 ],
-                        function () {
+                        function (grid) {
 
-                            require([ // The grid engine
-                                'app/grid',
-                                'app/modules'
-                            ],
-                                    function (grid) {
+                            window.grid = grid; // Make grid available to boot scripts
 
-                                        window.grid = grid; // Make grid available to boot scripts
+                            bindGridErrors(grid);
 
-                                        bindGridErrors(grid);
+                            initTaskMonitor(grid);
 
-                                        initTaskMonitor(grid);
+                            /* Load boot script
+                             */
+                            if (params.script) {
 
-                                        /* Load boot script
-                                         */
-                                        if (params.script) {
-
-                                            require(["../../content/scripts/" + params.script],
-                                                    function () {
-                                                        ok(grid); // Booted off script
-                                                    });
-                                        } else {
-                                            ok(grid); // Done
-                                        }
-                                    });
+                                require(["../../content/scripts/" + params.script],
+                                        function () {
+                                            ok(grid); // Booted off script
+                                        });
+                            } else {
+                                ok(grid); // Done
+                            }
                         });
             });
 }
@@ -534,8 +527,6 @@ function initTaskMonitor(grid) {
 
                 monitor.append(taskElement);
 
-                //   $(taskElement).tooltip();
-
                 taskElement.fadeIn("slow");
             });
 
@@ -564,7 +555,6 @@ function initTaskMonitor(grid) {
 
                         setTimeout(
                                 function () {
-
                                     task.element.remove();
                                 }, 2000);
 

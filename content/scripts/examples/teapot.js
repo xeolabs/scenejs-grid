@@ -1,6 +1,5 @@
 /* 1. Load the scene graph manager module into the grid
  */
-
 grid.send({
     action: "module.load",
     modules: ["scenes/scene"],

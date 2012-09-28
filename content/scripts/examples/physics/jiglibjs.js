@@ -34,7 +34,7 @@ grid.send({
                 for (var x = -2; x < 2; x += .7) {
                     for (var z = -2; z < 2; z += .7) {
                         objectId = "box." + i++;
-                        createBox(objectId, { x:0, y:(Math.random() * 250) +10, z:0 });
+                        createBox(objectId, { x:0, y:(Math.random() * 250) + 10, z:0 });
                     }
                 }
 
@@ -49,15 +49,15 @@ grid.send({
                         action:"prims.create",
                         type:"sphere",
                         primId:objectId,
-                       // radius: 1.0,
+                        // radius: 1.0,
                         pos:pos,
                         rotate:[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
 
-                        material: {
-                            baseColor: {
-                                r: Math.random(),
-                                g: Math.random(),
-                                b: Math.random()
+                        material:{
+                            baseColor:{
+                                r:Math.random(),
+                                g:Math.random(),
+                                b:Math.random()
                             }
                         }
                     });
@@ -68,7 +68,7 @@ grid.send({
                         action:"physics.create",
                         type:"sphere",
                         bodyId:objectId,
-                        radius: 0.9,
+                        radius:0.9,
                         restitution:1000000,
                         velocity:{
                             x:(Math.random() * 2) - 1,
