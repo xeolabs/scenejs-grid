@@ -124,7 +124,7 @@ define(["../../../lib/jiglib.all.min"],
                         var bodyId = params.bodyId;
 
                         if (!bodyId) {
-                            deleteAllbodys();
+                            deleteAllBodies();
                             ok();
                         }
 
