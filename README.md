@@ -1,7 +1,7 @@
 scenejs-grid
 =======================
 
-SceneJS-Grid is a modular world engine built on top of (the as yet unreleased) [SceneJS v3.0](https://github.com/xeolabs/scenejs), the
+SceneJS-Grid is an experimental world engine built on top of (the as yet unreleased) [SceneJS v3.0](https://github.com/xeolabs/scenejs), the
 WebGL-based 3D rendering engine.
 
 Grid in 30 Seconds
